@@ -1,3 +1,6 @@
+using Survey.Application;
+using Survey.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +9,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// DependencyInjection
+builder.Services.AddApplicationServices()
+    .AddInfrastructureService(builder.Configuration);
 
 var app = builder.Build();
 
