@@ -1,0 +1,9 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Survey.Domain.ValueObjects.Identity;
+
+namespace Survey.Domain.Models.Identity
+{
+    public class ApplicationRole: IdentityRole<Guid>
+    {
+    }
+}
