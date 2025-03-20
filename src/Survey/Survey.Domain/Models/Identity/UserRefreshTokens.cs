@@ -27,9 +27,10 @@ namespace Survey.Domain.Models.Identity
 
         // user metadata
         public UserMetaData UserMetaData { get; private set; }
+        [ForeignKey(nameof(UserId))]
         public ApplicationUser? User { get; private set; }
 
-        public UserRefreshTokens() { }
+        private UserRefreshTokens() { }
         public UserRefreshTokens (Guid userId, string accessToken, string refreshToken, DateTime expiryDate, UserMetaData userMetaData)
         {
             Id = RefreshTokenId.Of(Guid.NewGuid());
@@ -41,6 +42,16 @@ namespace Survey.Domain.Models.Identity
             AddedTime = DateTime.UtcNow;
             ExpiryDate = expiryDate;
             UserMetaData = userMetaData;
+        }
+
+        public void Revoke()
+        {
+            IsRevoked = true;
+        }
+
+        public void AssignNewAccessToken( string accessToken)
+        {
+            AccessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
         }
     }
 }

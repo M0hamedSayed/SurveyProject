@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Survey.Domain.Enums;
+using Shared.Enums;
 
 namespace Survey.Domain.Interfaces.Models
 {
@@ -8,7 +8,7 @@ namespace Survey.Domain.Interfaces.Models
         Guid EventId => Guid.NewGuid();
         public DateTime OccuredOn => DateTime.UtcNow;
         public string? EventName => GetType().AssemblyQualifiedName;
-        public string EventType { get; set; }
-        public List<NotificationTypes> NotifyTypes { get; set; }
+        public EventTypes EventType { get; }
+        public List<NotificationTypes> NotifyTypes { get; }
     }
 }

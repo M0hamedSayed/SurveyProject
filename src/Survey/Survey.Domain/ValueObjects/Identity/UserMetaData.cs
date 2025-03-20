@@ -29,7 +29,7 @@ namespace Survey.Domain.ValueObjects.Identity
         public decimal? LocationLng { get; private set; }
 
         protected UserMetaData() { }
-        private UserMetaData(string? userAgent, string? ip, string? country, string? countryCode, string? city, string? timezone, decimal? locationLat, decimal? locationLng)
+        public UserMetaData(string? userAgent, string? ip, string? country, string? countryCode, string? city, string? timezone, decimal? locationLat, decimal? locationLng)
         {
             UserAgent = userAgent;
             IP = ip;

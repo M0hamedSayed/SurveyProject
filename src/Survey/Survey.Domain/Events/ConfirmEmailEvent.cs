@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Survey.Domain.Enums;
+﻿using Shared.Enums;
 using Survey.Domain.Interfaces.Models;
 
 namespace Survey.Domain.Events
 {
-    public class ConfirmEmailEvent : IDomainEvent
+    public class ConfirmEmailEvent(string Email, Guid UserId, string Token) : IDomainEvent
     {
-        public string EventType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public EventTypes EventType => EventTypes.ConfirmUserEmail;
+        public List<NotificationTypes> NotifyTypes =>  [ NotificationTypes.Email ];
 
-        public List<NotificationTypes> NotifyTypes  = new List<NotificationTypes>() { NotificationTypes.Email };
     }
 }
