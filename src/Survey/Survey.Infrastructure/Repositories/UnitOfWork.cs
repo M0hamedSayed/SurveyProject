@@ -1,15 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Survey.Domain.Interfaces.Repositories;
 using Survey.Infrastructure.DatabaseContext;
 
 namespace Survey.Infrastructure.Repositories
 {
-    public class UnitOfWork (ApplicationDbContext dbContext, IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository) : IUnitOfWork
+    public class UnitOfWork(ApplicationDbContext dbContext, IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository, ISurveyRepository surveyRepository, ISurveyTypeRepository surveyTypeRepository, IQuestionSurveyRepository questionSurveyRepository, IChoiceRepository choiceRepository, IEvaluateChoiceRepository evaluateChoiceRepository, ISurveyResponseRepository surveyResponseRepository) : IUnitOfWork
     {
         private readonly ApplicationDbContext _context = dbContext;
         public IUserRepository UserRepository => userRepository;
         public IRefreshTokenRepository RefreshTokenRepository => refreshTokenRepository;
 
+        public ISurveyRepository SurveyRepository => surveyRepository;
+
+        public ISurveyTypeRepository SurveyTypeRepository => surveyTypeRepository;
+
+        public IQuestionSurveyRepository QuestionSurveyRepository => questionSurveyRepository;
+        public IChoiceRepository ChoiceRepository => choiceRepository;
+        public IEvaluateChoiceRepository EvaluateChoiceRepository => evaluateChoiceRepository;
+
+        public ISurveyResponseRepository ResponseRepository => surveyResponseRepository;
         public IDbContextTransaction BeginTransaction()
         {
             return _context.Database.BeginTransaction();

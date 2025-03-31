@@ -1,41 +1,63 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using Shared.Events;
 using Survey.Domain.Events.Dispatcher;
 using Survey.Domain.Interfaces.Models;
 
 namespace Survey.Infrastructure.Interceptors
 {
-    public class DispatchDomainEventInterceptor (IDomainEventDispatcher eventDispatcher) : Microsoft.EntityFrameworkCore.Diagnostics.SaveChangesInterceptor
+    public class DispatchDomainEventInterceptor : SaveChangesInterceptor
     {
-        public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
+        //private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+        private readonly IPublishEndpoint _publishEndpoint;
+        public DispatchDomainEventInterceptor(IPublishEndpoint publishEndpoint)
         {
-            DispatchDomainEvents(eventData.Context).GetAwaiter().GetResult();
-            return base.SavingChanges(eventData, result);
+            _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
         }
-
         public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
-            await DispatchDomainEvents(eventData.Context);
-            return await base.SavingChangesAsync(eventData, result, cancellationToken);
+
+            return await base.SavingChangesAsync(eventData, result, cancellationToken); ;
         }
 
-        public async Task DispatchDomainEvents(DbContext? context)
+        public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
+        {
+            await DispatchDomainEvents(eventData.Context, cancellationToken);
+
+            return await base.SavedChangesAsync(eventData, result, cancellationToken);
+        }
+        private async Task DispatchDomainEvents(DbContext? context, CancellationToken cancellationToken)
         {
             if (context == null) return;
 
+            // Create a new DI scope
+            //using var scope = _scopeFactory.CreateScope();
+            //var eventDispatcher = scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>();
+            //var endpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+
+
             var aggregates = context.ChangeTracker
                 .Entries<IAggregate>()
-                .Where(a => a.Entity.DomainEvents.Any())
-                .Select(a => a.Entity);
+                .Where(a => a.Entity.DomainEvents != null && a.Entity.DomainEvents.Any())
+                .Select(a => a.Entity)
+                .ToList();  // Convert to List only once
 
             var domainEvents = aggregates
                 .SelectMany(a => a.DomainEvents)
-                .ToList();
+                .ToList();  // Extract domain events
 
-            aggregates.ToList().ForEach(a => a.ClearDomainEvents());
+            foreach (var aggregate in aggregates)
+            {
+                aggregate.ClearDomainEvents(); // Clear events from entities
+            }
 
             foreach (var domainEvent in domainEvents)
-                await eventDispatcher.DispatchAsync(domainEvent);
+            {
+                if(domainEvent is SurveyActivatedEvent surveyActivatedEvent)
+                    await _publishEndpoint.Publish(surveyActivatedEvent, cancellationToken);
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ using Survey.Infrastructure.DatabaseContext;
 
 namespace Survey.Infrastructure.Repositories
 {
-    public class RefreshTokenRepository (ApplicationDbContext context) : GenericrepositoryAsync<UserRefreshTokens> (context), IRefreshTokenRepository
+    public class RefreshTokenRepository(ApplicationDbContext context) : GenericrepositoryAsync<UserRefreshTokens>(context), IRefreshTokenRepository
     {
         private readonly DbSet<UserRefreshTokens> _refreshTokens = context.Set<UserRefreshTokens>();
     }

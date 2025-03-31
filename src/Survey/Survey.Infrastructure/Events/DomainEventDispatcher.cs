@@ -1,21 +1,21 @@
-﻿using MediatR;
+﻿using MassTransit;
+using Shared.Events;
 using Survey.Domain.Events.Dispatcher;
-using Survey.Domain.Interfaces.Models;
 
 namespace Survey.Infrastructure.Events
 {
     public class DomainEventDispatcher : IDomainEventDispatcher
     {
-        private readonly IMediator _mediator;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public DomainEventDispatcher(IMediator mediator)
+        public DomainEventDispatcher(IPublishEndpoint publishEndpoint)
         {
-            _mediator = mediator;
+            _publishEndpoint = publishEndpoint;
         }
 
-        public async Task DispatchAsync(IDomainEvent domainEvent)
+        public async Task DispatchAsync<T>(T domainEvent, CancellationToken cancellationToken) where T : class
         {
-            await _mediator.Publish(domainEvent);
+            await _publishEndpoint.Publish(domainEvent, cancellationToken);
         }
     }
 }

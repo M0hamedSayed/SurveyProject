@@ -5,7 +5,7 @@ using Survey.Domain.Interfaces.Models;
 
 namespace Survey.Infrastructure.Interceptors
 {
-    public sealed class EntityChangesInterceptor : Microsoft.EntityFrameworkCore.Diagnostics.SaveChangesInterceptor
+    public sealed class EntityChangesInterceptor : SaveChangesInterceptor
     {
         public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
         {
@@ -22,7 +22,6 @@ namespace Survey.Infrastructure.Interceptors
         public void UpdateEntities(DbContext? context)
         {
             if (context is null) return;
-
             // handle updated entity
             IEnumerable<EntityEntry<IEntity>> updatedEntries = context
                     .ChangeTracker

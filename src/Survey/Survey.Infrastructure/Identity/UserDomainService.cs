@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using Survey.Domain.Events;
+using Shared.Events;
 using Survey.Domain.Events.Dispatcher;
 using Survey.Domain.Exceptions;
 using Survey.Domain.Interfaces;
@@ -8,7 +8,7 @@ using Survey.Domain.Models.Identity;
 
 namespace Survey.Infrastructure.Identity
 {
-    public class UserDomainService (IDomainEventDispatcher domainEventDispatcher, IUnitOfWork unitOfWork) : IUserDomainService
+    public class UserDomainService(IDomainEventDispatcher domainEventDispatcher, IUnitOfWork unitOfWork) : IUserDomainService
     {
         private readonly IDomainEventDispatcher _domainEventDispatcher = domainEventDispatcher;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -45,13 +45,13 @@ namespace Survey.Infrastructure.Identity
             // assign manager
             user = await AssignManagerToUser(user, managerId);
             // handle last email confirmed
-            if(!emailConfirmed)  user.HandleSendEmailDate(DateTime.UtcNow);
+            if (!emailConfirmed) user.HandleSendEmailDate(DateTime.UtcNow);
 
             var result = await _unitOfWork.UserRepository.UserManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
                 throw new DomainException(string.Join(", ", result.Errors.Select(e => e.Description)));
-            }            
+            }
 
             return user;
         }
@@ -71,7 +71,7 @@ namespace Survey.Infrastructure.Identity
             return user;
         }
 
-        private async Task EnsureRoleExist( string roleName)
+        private async Task EnsureRoleExist(string roleName)
         {
             var roleExists = await _unitOfWork.UserRepository.RoleManager.RoleExistsAsync(roleName);
             if (!roleExists)
@@ -84,7 +84,7 @@ namespace Survey.Infrastructure.Identity
             }
         }
 
-        private async Task AddRoleAsync(ApplicationUser user,string roleName)
+        private async Task AddRoleAsync(ApplicationUser user, string roleName)
         {
             // validate role exist
             await EnsureRoleExist(roleName);
@@ -100,9 +100,9 @@ namespace Survey.Infrastructure.Identity
         {
             var confirmationToken = await _unitOfWork.UserRepository.UserManager.GenerateEmailConfirmationTokenAsync(user);
 
-            var domainEvent = new ConfirmEmailEvent(user.Email, user.Id, confirmationToken);
+            var domainEvent = new EmailConfirmEvent(user.Email, user.Id, confirmationToken);
 
-            await _domainEventDispatcher.DispatchAsync(domainEvent);
+            //await _domainEventDispatcher.DispatchAsync(domainEvent, cancellationToken);
         }
     }
 }

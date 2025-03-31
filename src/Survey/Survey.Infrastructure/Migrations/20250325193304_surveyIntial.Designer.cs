@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Survey.Infrastructure.DatabaseContext;
 
@@ -12,9 +13,11 @@ using Survey.Infrastructure.DatabaseContext;
 namespace Survey.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250325193304_surveyIntial")]
+    partial class surveyIntial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -795,16 +798,6 @@ namespace Survey.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("name_en");
 
-                    b.Property<bool>("ReminderSent")
-                        .HasColumnType("bit")
-                        .HasColumnName("reminder_sent");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2")
                         .HasColumnName("start_date");
@@ -990,7 +983,7 @@ namespace Survey.Infrastructure.Migrations
 
             modelBuilder.Entity("Survey.Domain.Models.Survey.Surveys", b =>
                 {
-                    b.HasOne("Survey.Domain.Models.Survey.SurveyType", "SurveyType")
+                    b.HasOne("Survey.Domain.Models.Survey.SurveyType", null)
                         .WithMany()
                         .HasForeignKey("SurveyTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1001,8 +994,6 @@ namespace Survey.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("SurveyType");
                 });
 
             modelBuilder.Entity("Survey.Domain.Models.Identity.ApplicationUser", b =>

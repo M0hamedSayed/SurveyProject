@@ -1,22 +1,27 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using System.Reflection;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
+using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Helpers;
-using Survey.Domain.Interfaces.Repositories;
-using Survey.Infrastructure.DatabaseContext;
-using Survey.Infrastructure.Repositories;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Survey.Domain.Models.Identity;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Survey.Domain.Interfaces;
-using Survey.Infrastructure.Identity;
+using Shared.Messaging.Extensions;
 using Survey.Domain.Events.Dispatcher;
+using Survey.Domain.Interfaces;
+using Survey.Domain.Interfaces.Repositories;
+using Survey.Domain.Models.Identity;
+using Survey.Infrastructure.DatabaseContext;
 using Survey.Infrastructure.Events;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Survey.Infrastructure.Identity;
 using Survey.Infrastructure.Interceptors;
+using Survey.Infrastructure.Repositories;
 
 namespace Survey.Infrastructure
 {
@@ -25,15 +30,27 @@ namespace Survey.Infrastructure
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
             // DI for interceptors
-            services.AddScoped<ISaveChangesInterceptor, EntityChangesInterceptor>();
-            services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventInterceptor>();
-
+            services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+            services.AddScoped<EntityChangesInterceptor>();
+            services.AddScoped<DispatchDomainEventInterceptor>(sp =>
+            {
+                var bus = sp.GetRequiredService<IBus>();
+                return new DispatchDomainEventInterceptor(bus);
+            });
             // connect to sql server
             services.AddDbContext<ApplicationDbContext>((sp ,options) =>
             {
-                options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>())
-                .UseSqlServer(configuration.GetConnectionString("Database"));
+                options.UseSqlServer(configuration.GetConnectionString("Database"));
+                options.AddInterceptors
+                (
+                    sp.GetRequiredService<EntityChangesInterceptor>(),
+                    sp.GetRequiredService<DispatchDomainEventInterceptor>()
+                );
             });
+
+            // configure mass transit
+            services.addMassTransitConfiguration<ApplicationDbContext>(configuration);
+
 
             // Bind configuration settings using IOptions pattern
             services.Configure<TokenSettings>(configuration.GetSection("tokenSettings"));
@@ -52,11 +69,18 @@ namespace Survey.Infrastructure
             services.AddScoped(typeof(IGenericRepositoryAsync<>), typeof(GenericrepositoryAsync<>));
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<ISurveyRepository, SurveyRepository>();
+            services.AddScoped<ISurveyTypeRepository, SurveyTypeRepository>();
+            services.AddScoped<IQuestionSurveyRepository, SurveyQuestionRepository>();
+            services.AddScoped<IChoiceRepository, ChoiceSurveynRepository>();
+            services.AddScoped<IEvaluateChoiceRepository, EvaluateChoiceSurveynRepository>();
+            services.AddScoped<ISurveyResponseRepository, SurveyResponseRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // domain services
-            services.AddScoped<IDomainEventDispatcher,DomainEventDispatcher>();
             services.AddScoped<IUserDomainService, UserDomainService>();
+
+            
 
             return services;
         }
@@ -94,26 +118,21 @@ namespace Survey.Infrastructure
             })
             .AddJwtBearer(options =>
             {
-                options.RequireHttpsMetadata = false;
+                options.RequireHttpsMetadata = true;
                 options.SaveToken = true;
-                options.TokenValidationParameters = GetTokenValidationParameters(tokenSettings);
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = tokenSettings!.ValidateIssuer,
+                    ValidIssuers = new[] { tokenSettings.Issuer },
+                    ValidateIssuerSigningKey = tokenSettings.ValidateIssuerSigningKey,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSettings.Secret)),
+                    ValidAudience = tokenSettings.Audience,
+                    ValidateAudience = tokenSettings.ValidateAudience,
+                    ValidateLifetime = tokenSettings.ValidateLifeTime,
+                };
             });
 
             return services;
-        }
-
-        private static TokenValidationParameters GetTokenValidationParameters(TokenSettings tokenSettings)
-        {
-            return new TokenValidationParameters
-            {
-                ValidateIssuer = tokenSettings.ValidateIssuer,
-                ValidIssuers = new[] { tokenSettings.Issuer },
-                ValidateIssuerSigningKey = tokenSettings.ValidateIssuerSigningKey,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSettings.Secret)),
-                ValidAudience = tokenSettings.Audience,
-                ValidateAudience = tokenSettings.ValidateAudience,
-                ValidateLifetime = tokenSettings.ValidateLifeTime
-            };
         }
     }
 }

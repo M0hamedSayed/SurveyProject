@@ -1,13 +1,13 @@
 ﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Shared.Consts;
 using Survey.Domain.Interfaces.Repositories;
 using Survey.Infrastructure.DatabaseContext;
 
 namespace Survey.Infrastructure.Repositories
 {
-    public class GenericrepositoryAsync<T> (ApplicationDbContext dbContext) : IGenericRepositoryAsync<T> where T : class
+    public class GenericrepositoryAsync<T>(ApplicationDbContext dbContext) : IGenericRepositoryAsync<T> where T : class
     {
         protected readonly ApplicationDbContext _context = dbContext;
 
@@ -82,7 +82,7 @@ namespace Survey.Infrastructure.Repositories
             return await _context.Set<T>().Skip(skip).Take(take).ToListAsync();
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(Guid id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
