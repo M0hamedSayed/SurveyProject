@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Shared.Events;
 using Survey.Domain.Interfaces.Models;
 using Survey.Domain.ValueObjects.Identity;
 
@@ -10,7 +11,7 @@ namespace Survey.Domain.Models.Identity
     {
         [MaxLength(100)]
         [Column("full_name")]
-        public String FullName { get; private set; }
+        public  String FullName { get; private set; }
         public DateTime? LastEmailConfirmSent { get; private set; }
         public DateTime? LastEmailPasswordResetSent { get; private set; }
         [Column("created_at")]
@@ -23,17 +24,17 @@ namespace Survey.Domain.Models.Identity
         public bool IsDeleted { get; set; } = false;
 
         // handle domain events
-        private readonly List<IDomainEvent> _domainEvents = new();
-        public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents;
+        private readonly List<DomainEvent> _domainEvents = new();
+        public IReadOnlyList<DomainEvent> DomainEvents => _domainEvents;
 
-        public void AddDomainEvent(IDomainEvent domainEvent)
+        public void AddDomainEvent(DomainEvent domainEvent)
         {
             _domainEvents.Add(domainEvent);
         }
 
-        public IDomainEvent[] ClearDomainEvents()
+        public DomainEvent[] ClearDomainEvents()
         {
-            IDomainEvent[] dequeuedEvents = _domainEvents.ToArray();
+            DomainEvent[] dequeuedEvents = _domainEvents.ToArray();
             _domainEvents.Clear();
             return dequeuedEvents;
         }
@@ -50,7 +51,7 @@ namespace Survey.Domain.Models.Identity
         public IReadOnlyCollection<UserRefreshTokens> RefreshTokens => _refreshTokens.AsReadOnly();
 
         public ApplicationUser() { }
-        public ApplicationUser( string fullName, string email)
+        public ApplicationUser(string fullName, string email)
         {
             Id = Guid.NewGuid();
             FullName = fullName;
@@ -78,7 +79,7 @@ namespace Survey.Domain.Models.Identity
 
         public void addRefreshToken(UserMetaData userMeta, string accessToken, string rToken, DateTime exprieDate)
         {
-            UserRefreshTokens newRefreshToken = new UserRefreshTokens( this.Id, accessToken, rToken, exprieDate, userMeta);
+            UserRefreshTokens newRefreshToken = new UserRefreshTokens(this.Id, accessToken, rToken, exprieDate, userMeta);
             _refreshTokens.Add(newRefreshToken);
         }
 

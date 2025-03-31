@@ -12,7 +12,7 @@ namespace Survey.Domain.Abstractions
         public DateTime? UpdatedAt { get; set; }
     }
 
-    public abstract class EntitySoftDeletable<T> : Entity<T>,IEntitySoftDeletable<T>
+    public abstract class EntitySoftDeletable<T> : Entity<T>, IEntitySoftDeletable<T>
     {
         [Column("deleted_at")]
         public DateTime? DeletedAt { get; set; }

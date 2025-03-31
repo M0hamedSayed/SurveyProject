@@ -1,11 +1,11 @@
 ﻿namespace Survey.Domain.Interfaces.Models
 {
-    
+
     public interface IEntity<T> : IEntity
-    { 
+    {
         public T Id { get; set; }
     }
-    
+
     public interface IEntity
     {
         public DateTime? CreatedAt { get; set; }

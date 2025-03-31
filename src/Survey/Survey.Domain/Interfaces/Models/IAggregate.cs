@@ -1,12 +1,14 @@
-﻿namespace Survey.Domain.Interfaces.Models
+﻿using Shared.Events;
+
+namespace Survey.Domain.Interfaces.Models
 {
     public interface IAggregate<T> : IAggregate, IEntity<T>
     {
     }
-    public interface IAggregate: IEntity
+    public interface IAggregate : IEntity
     {
-        IReadOnlyList<IDomainEvent> DomainEvents { get; }
-        IDomainEvent[] ClearDomainEvents();
+        IReadOnlyList<DomainEvent> DomainEvents { get; }
+        DomainEvent[] ClearDomainEvents();
     }
     public interface IAggregateSoftDeletable<T> : IAggregate, IEntitySoftDeletable<T>
     {

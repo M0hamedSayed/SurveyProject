@@ -8,7 +8,6 @@ namespace Survey.Domain.Interfaces.Models
         Guid EventId => Guid.NewGuid();
         public DateTime OccuredOn => DateTime.UtcNow;
         public string? EventName => GetType().AssemblyQualifiedName;
-        public EventTypes EventType { get; }
         public List<NotificationTypes> NotifyTypes { get; }
     }
 }

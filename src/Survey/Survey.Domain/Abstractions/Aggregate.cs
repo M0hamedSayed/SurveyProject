@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Shared.Events;
 using Survey.Domain.Interfaces.Models;
 
 namespace Survey.Domain.Abstractions
 {
-    public abstract class Aggregate<T> : Entity<T>, IAggregate<T> where T : class
+    public abstract class Aggregate<T> : Entity<T>, IAggregate<T>
     {
-        private readonly List<IDomainEvent> _domainEvents = new();
-        public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents;
+        private readonly List<DomainEvent> _domainEvents = new();
+        public IReadOnlyList<DomainEvent> DomainEvents => _domainEvents;
 
-        public void AddDomainEvent(IDomainEvent domainEvent)
+        public void AddDomainEvent(DomainEvent domainEvent)
         {
             _domainEvents.Add(domainEvent);
         }
 
-        public IDomainEvent[] ClearDomainEvents()
+        public DomainEvent[] ClearDomainEvents()
         {
-            IDomainEvent[] dequeuedEvents = _domainEvents.ToArray();
+            DomainEvent[] dequeuedEvents = _domainEvents.ToArray();
             _domainEvents.Clear();
             return dequeuedEvents;
         }
@@ -27,17 +23,17 @@ namespace Survey.Domain.Abstractions
 
     public abstract class AggregateSoftDeletable<T> : EntitySoftDeletable<T>, IAggregateSoftDeletable<T>
     {
-        private readonly List<IDomainEvent> _domainEvents = new();
-        public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents;
+        private readonly List<DomainEvent> _domainEvents = new();
+        public IReadOnlyList<DomainEvent> DomainEvents => _domainEvents;
 
-        public void AddDomainEvent(IDomainEvent domainEvent)
+        public void AddDomainEvent(DomainEvent domainEvent)
         {
             _domainEvents.Add(domainEvent);
         }
 
-        public IDomainEvent[] ClearDomainEvents()
+        public DomainEvent[] ClearDomainEvents()
         {
-            IDomainEvent[] dequeuedEvents = _domainEvents.ToArray();
+            DomainEvent[] dequeuedEvents = _domainEvents.ToArray();
             _domainEvents.Clear();
             return dequeuedEvents;
         }

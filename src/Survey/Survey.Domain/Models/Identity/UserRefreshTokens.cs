@@ -31,7 +31,7 @@ namespace Survey.Domain.Models.Identity
         public ApplicationUser? User { get; private set; }
 
         private UserRefreshTokens() { }
-        public UserRefreshTokens (Guid userId, string accessToken, string refreshToken, DateTime expiryDate, UserMetaData userMetaData)
+        public UserRefreshTokens(Guid userId, string accessToken, string refreshToken, DateTime expiryDate, UserMetaData userMetaData)
         {
             Id = RefreshTokenId.Of(Guid.NewGuid());
             UserId = userId;
@@ -49,7 +49,7 @@ namespace Survey.Domain.Models.Identity
             IsRevoked = true;
         }
 
-        public void AssignNewAccessToken( string accessToken)
+        public void AssignNewAccessToken(string accessToken)
         {
             AccessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
         }

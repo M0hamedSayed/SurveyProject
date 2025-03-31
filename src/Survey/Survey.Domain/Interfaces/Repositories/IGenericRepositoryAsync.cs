@@ -13,9 +13,9 @@ namespace Survey.Domain.Interfaces.Repositories
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetAllAsync(int skip, int take);
 
-        Task<T?> GetByIdAsync(int id);
+        public Task<T?> GetByIdAsync(Guid id);
         //find
-        Task<T?> FindAsync(Expression<Func<T, bool>> criteria, string[]? includes = null);
+        public Task<T?> FindAsync(Expression<Func<T, bool>> criteria, string[]? includes = null);
         Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[]? includes = null);
         Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[]? includes, int take, int skip);
         Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[]? includes = null, int? take = null, int? skip = null,

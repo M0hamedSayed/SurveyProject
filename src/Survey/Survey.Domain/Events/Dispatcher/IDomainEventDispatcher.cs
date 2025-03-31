@@ -1,9 +1,9 @@
-﻿using Survey.Domain.Interfaces.Models;
+﻿using Shared.Events;
 
 namespace Survey.Domain.Events.Dispatcher
 {
     public interface IDomainEventDispatcher
     {
-        Task DispatchAsync(IDomainEvent domainEvent);
+        Task DispatchAsync<T>(T domainEvent, CancellationToken cancellationToken) where T : class;
     }
 }
