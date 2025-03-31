@@ -11,12 +11,12 @@ using Survey.Domain.Models.Identity;
 
 namespace Survey.Application.Services
 {
-    public class TokenService: ITokenService
+    public class TokenService : ITokenService
     {
         private readonly TokenSettings _tokenSettings;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TokenService( IOptions<TokenSettings> tokenSettings, IUnitOfWork unitOfWork)
+        public TokenService(IOptions<TokenSettings> tokenSettings, IUnitOfWork unitOfWork)
         {
             _tokenSettings = tokenSettings.Value;
             _unitOfWork = unitOfWork;

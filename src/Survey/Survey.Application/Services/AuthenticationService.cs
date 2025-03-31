@@ -13,7 +13,7 @@ using Survey.Domain.ValueObjects.Identity;
 
 namespace Survey.Application.Services
 {
-    public class AuthenticationService: IAuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -21,7 +21,7 @@ namespace Survey.Application.Services
         private readonly IHostEnvironment _hostEnvironment;
         private readonly ITokenService _tokenService;
 
-        public AuthenticationService(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor,IOptions<TokenSettings> tokenSettings, IHostEnvironment hostEnvironment, ITokenService tokenService)
+        public AuthenticationService(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor, IOptions<TokenSettings> tokenSettings, IHostEnvironment hostEnvironment, ITokenService tokenService)
         {
             _unitOfWork = unitOfWork;
             _contextAccessor = contextAccessor;
@@ -49,8 +49,8 @@ namespace Survey.Application.Services
 
             DateTime rTokenExpiryDate = DateTime.UtcNow.AddDays(_tokenSettings.RefreshTokenExpireDate);
 
-            var metaData = UserMetaData.Of(GetUserAgent(), userIp, userMetaData?.country, userMetaData?.countryCode,userMetaData?.city, userMetaData?.timezone,  userMetaData?.lat, userMetaData?.lon);
-            
+            var metaData = UserMetaData.Of(GetUserAgent(), userIp, userMetaData?.country, userMetaData?.countryCode, userMetaData?.city, userMetaData?.timezone, userMetaData?.lat, userMetaData?.lon);
+
             var userRefreshToken = new UserRefreshTokens(user.Id, accessToken, refreshToken, DateTime.UtcNow.AddDays(_tokenSettings.RefreshTokenExpireDate), metaData);
 
             user.addRefreshToken(metaData, accessToken, refreshToken, rTokenExpiryDate);
@@ -77,14 +77,14 @@ namespace Survey.Application.Services
             string? id = principal.FindFirstValue("Id");
 
             if (!Guid.TryParse(id, out var userId)) throw new UnauthorizedAccessException("Invalid Token");
-            
+
             // get user refresh token
             var user = await _unitOfWork.UserRepository.UserManager.FindByIdAsync(userId.ToString());
             if (user is not null)
                 await _unitOfWork.UserRepository.Entry(user).Collection(u => u.RefreshTokens).Query().Where(rt => rt.RefreshToken == refreshtoken).LoadAsync();
-            
+
             var rToken = user?.RefreshTokens.FirstOrDefault();
-            
+
             if (user is null || rToken is null || (rToken.IsRevoked && rToken is not null))
             {
                 _contextAccessor?.HttpContext?.Response.Cookies.Delete("refreshToken");

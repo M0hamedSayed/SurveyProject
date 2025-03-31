@@ -6,7 +6,7 @@ using Survey.Domain.Interfaces.Repositories;
 
 namespace Survey.Application.Features.Authentication.Commands.Login
 {
-    public class LoginHandler (IAuthenticationService authenticationService, IUnitOfWork unitOfWork, IMapper mapper) : ResponseHandler, IRequestHandler<LoginCommand, Response<LoginResult>>
+    public class LoginHandler(IAuthenticationService authenticationService, IUnitOfWork unitOfWork, IMapper mapper) : ResponseHandler, IRequestHandler<LoginCommand, Response<LoginResult>>
     {
         private readonly IMapper _mapper = mapper;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;

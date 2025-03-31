@@ -12,9 +12,11 @@
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.14" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared.Messaging\Shared.Messaging.csproj" />
     <ProjectReference Include="..\Survey.Domain\Survey.Domain.csproj" />
   </ItemGroup>
 

@@ -2,12 +2,13 @@
 using FluentValidation;
 using Mapster;
 using MapsterMapper;
-using Microsoft.AspNetCore.Http;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Survey.Application.Behaviors;
-using Survey.Application.Features.Authentication.Commands.Login;
+using Survey.Application.Features.surveyFeature.Commands.AddSurveyPhoto;
 using Survey.Application.Interfaces;
 using Survey.Application.Services;
+using Survey.Application.Services.Background;
 
 namespace Survey.Application
 {
@@ -15,6 +16,9 @@ namespace Survey.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+
 
             // add mediators
             services.AddMediatR(config =>
@@ -25,7 +29,6 @@ namespace Survey.Application
             });
             // Get Validators
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
             // mapping
             var config = TypeAdapterConfig.GlobalSettings;
             // Scan all loaded assemblies
@@ -45,6 +48,12 @@ namespace Survey.Application
             // DI
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<ISurveyService, SurveyService>();
+            services.AddHostedService<SurveyActivationService>();
+            services.AddHostedService<SurveyDeactivationService>();
+            services.AddHostedService<SurveyReminderService>();
+
             return services;
         }
 
