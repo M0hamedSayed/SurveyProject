@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Survey.API.Dto
+﻿namespace Survey.API.Dto
 {
     public class LoginDto
     {

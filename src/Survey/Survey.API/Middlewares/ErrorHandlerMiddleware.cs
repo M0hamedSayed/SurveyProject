@@ -1,15 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Survey.Application.Base;
-using Survey.Domain.Exceptions;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Survey.Application.Base;
+using Survey.Domain.Exceptions;
 
 namespace Survey.API.Middlewares
 {
-    public class ErrorHandlerMiddleware (ILogger<ErrorHandlerMiddleware> logger, RequestDelegate next) 
+    public class ErrorHandlerMiddleware(ILogger<ErrorHandlerMiddleware> logger, RequestDelegate next)
     {
-        private readonly ILogger<ErrorHandlerMiddleware> _logger = logger ;
+        private readonly ILogger<ErrorHandlerMiddleware> _logger = logger;
         private readonly RequestDelegate _next = next;
 
         public async Task InvokeAsync(HttpContext context)
@@ -46,7 +46,7 @@ namespace Survey.API.Middlewares
             }
         }
 
-        private  async Task HandleExceptionAsync(HttpContext context, Exception error)
+        private async Task HandleExceptionAsync(HttpContext context, Exception error)
         {
             var response = context.Response;
             response.ContentType = "application/json";
@@ -60,7 +60,7 @@ namespace Survey.API.Middlewares
             response.StatusCode = error switch
             {
                 UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
-                ValidationException  => (int)HttpStatusCode.UnprocessableEntity,
+                ValidationException => (int)HttpStatusCode.UnprocessableEntity,
                 DomainException => (int)HttpStatusCode.UnprocessableEntity,
                 KeyNotFoundException => (int)HttpStatusCode.NotFound,
                 DbUpdateException => (int)HttpStatusCode.BadRequest,

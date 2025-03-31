@@ -1,9 +1,5 @@
-﻿using System.Reflection;
-using Asp.Versioning;
+﻿using Asp.Versioning;
 using AspNetCoreRateLimit;
-using Mapster;
-using MapsterMapper;
-using Survey.API.Middlewares;
 
 namespace Survey.API
 {
@@ -12,21 +8,21 @@ namespace Survey.API
         public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
         {
             // add rate limiting
-            services.AddMemoryCache();
-            services.Configure<IpRateLimitOptions>(options =>
-            {
-                options.GeneralRules = new List<RateLimitRule>
-                {
-                    new RateLimitRule
-                    {
-                        Endpoint = "*",
-                        Period = "1m",  // Limit to 30 request per 1 minutes
-                        Limit = 30
-                    }
-                };
-            });
-            services.AddInMemoryRateLimiting();
-            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+            //services.AddMemoryCache();
+            //services.Configure<IpRateLimitOptions>(options =>
+            //{
+            //    options.GeneralRules = new List<RateLimitRule>
+            //    {
+            //        new RateLimitRule
+            //        {
+            //            Endpoint = "*",
+            //            Period = "1m",  // Limit to 30 request per 1 minutes
+            //            Limit = 30
+            //        }
+            //    };
+            //});
+            //services.AddInMemoryRateLimiting();
+            //services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
             // Add API versioning
             services.AddApiVersioning(options =>
@@ -41,7 +37,8 @@ namespace Survey.API
                 options.SubstituteApiVersionInUrl = true;
             });
 
-            services.AddCors(options => {
+            services.AddCors(options =>
+            {
 
                 options.AddDefaultPolicy(policyBuilder =>
                 {

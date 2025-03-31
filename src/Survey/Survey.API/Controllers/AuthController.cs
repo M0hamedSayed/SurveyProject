@@ -1,7 +1,6 @@
 ﻿using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Survey.API.Base;
 using Survey.API.Dto;
@@ -12,7 +11,7 @@ using Survey.Application.Features.Authentication.Commands.RefreshToken;
 namespace Survey.API.Controllers
 {
     [AllowAnonymous]
-    public class AuthController (IMediator mediator, IMapper mapper) : AppControllerBase (mediator)
+    public class AuthController(IMediator mediator, IMapper mapper) : AppControllerBase(mediator)
     {
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn([FromBody] LoginDto loginDto)
