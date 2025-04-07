@@ -1,0 +1,14 @@
+<div class="w-full h-80 relative cursor-pointer border border-gray-400 rounded-lg flex items-center justify-center text-center"
+    (click)="openFileSelector()">
+    @if (!imagePreview) {
+    <p>Click to select an image</p>
+    } @else {
+    <img class="max-w-full max-h-full" [src]="imagePreview" alt="Preview" />
+    }
+
+    <input #fileInput type="file" accept=".jpg,.jpeg,.png" (change)="onFileSelected($event)" hidden />
+</div>
+
+@if (error) {
+<div class="text-red-600 text-sm">{{ error }}</div>
+}

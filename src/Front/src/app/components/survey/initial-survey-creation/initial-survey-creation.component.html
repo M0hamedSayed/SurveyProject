@@ -1,0 +1,91 @@
+<section class="m-8">
+    <h4>General Information</h4>
+
+    <form class="flex flex-col gap-4 text-sm" [formGroup]="surveyForm">
+        <div class="flex items-center justify-center gap-4">
+            <div class="flex flex-col w-full">
+                <label for="nameEn">Survey Name En</label>
+                <input id="nameEn" type="text" pInputText formControlName="nameEn" />
+                @if (f.controls["nameEn"].touched && f.controls["nameEn"].errors?.['required']) {
+                <div class="text-red-600">Survey Name En is required.</div>
+                }
+            </div>
+            <div class="flex flex-col w-full">
+                <label for="nameAr">Survey Name Ar</label>
+                <input id="nameAr" type="text" pInputText formControlName="nameAr" />
+                @if (f.controls["nameAr"].touched && f.controls["nameAr"].errors?.['required']) {
+                <div class="text-red-600">Survey Name Ar is required.</div>
+                }
+            </div>
+        </div>
+        <div class="flex items-center justify-center gap-4">
+            <div class="flex flex-col w-full">
+                <label for="descEn">Survey Desc En</label>
+                <textarea id="descEn" rows="5" cols="30" formControlName="descriptionEn" pInputTextarea
+                    [autoResize]="true"></textarea>
+            </div>
+            <div class="flex flex-col w-full">
+                <label for="descAr">Survey Desc Ar</label>
+                <textarea id="descAr" rows="5" cols="30" formControlName="descriptionAr" pInputTextarea
+                    [autoResize]="true">
+                </textarea>
+            </div>
+        </div>
+        <div class="flex items-center justify-center gap-4">
+            <div class="flex flex-col w-full">
+                <label for="startDate">Publish Date</label>
+                <p-calendar inputId="startDate" formControlName="startDate" [showTime]="true" [iconDisplay]="'input'"
+                    [showIcon]="true" [hourFormat]="'12'" />
+                @if (f.controls["startDate"].touched && f.controls["startDate"].errors?.['required']) {
+                <div class="text-red-600">Publish Date is required.</div>
+                }
+            </div>
+            <div class="flex flex-col w-full">
+                <label for="endDate">End Date</label>
+                <p-calendar inputId="endDate" formControlName="endDate" [showTime]="true" [iconDisplay]="'input'"
+                    [showIcon]="true" [hourFormat]="'12'" />
+                @if (f.controls["endDate"].touched && f.controls["endDate"].errors?.['required']) {
+                <div class="text-red-600">End Date is required.</div>
+                }
+                @if (f.errors?.['minHourDiff'] && f.touched) {
+                <div class="text-red-600">End date must be at least 1 hour after start date</div>
+                }
+            </div>
+        </div>
+        <div>
+            <app-image-upload></app-image-upload>
+        </div>
+        <div class="flex gap-2 items-center">
+            <p-inputSwitch inputId="required" formControlName="isRequired" />
+            <label for="required"> Survey Required</label>
+        </div>
+        <p>Closing</p>
+        <div class="flex items-center justify-center gap-4">
+            <div class="flex flex-col w-full">
+                <label for="addressEn">Closing Address En</label>
+                <input id="addressEn" type="text" pInputText formControlName="closingAddressEn" />
+            </div>
+            <div class="flex flex-col w-full">
+                <label for="addressAr">Closing Address Ar</label>
+                <input id="addressAr" type="text" pInputText formControlName="closingAddressAr" />
+            </div>
+        </div>
+        <div class="flex items-center justify-center gap-4">
+            <div class="flex flex-col w-full">
+                <label for="statementEn">Closing Statement En</label>
+                <textarea id="statementEn" formControlName="closingStatementEn" rows="5" cols="30" pInputTextarea
+                    [autoResize]="true"></textarea>
+            </div>
+            <div class="flex flex-col w-full">
+                <label for="statementAr">Closing Statement Ar</label>
+                <textarea id="statementAr" formControlName="closingStatementAr" rows="5" cols="30" pInputTextarea
+                    [autoResize]="true">
+                </textarea>
+
+            </div>
+        </div>
+
+    </form>
+    <p-button styleClass="!my-8" label="Next : Questions" [rounded]="true" (onClick)="onNextPage()" />
+
+</section>
