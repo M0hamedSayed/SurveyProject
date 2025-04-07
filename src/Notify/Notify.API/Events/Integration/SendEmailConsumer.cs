@@ -35,7 +35,7 @@ namespace Notify.API.Events.Integration
                 Body = context.Message.Body,
                 IsHtml = context.Message.IsHtml,
             };
-            //await _emailService.SendEmailAsync(emailMsg);
+            await _emailService.SendEmailAsync(emailMsg);
             // save message to idempotency
             var msg = new NotifyMessage
             {
