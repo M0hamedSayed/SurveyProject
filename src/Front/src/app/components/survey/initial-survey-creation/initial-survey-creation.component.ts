@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input, OnInit, output } from '@angular/core';
 import { SurveyCreateFormService } from '../../../services/logic/survey-create-form.service';
 import { SurveyApiService } from '../../../services/api/survey-api.service';
 import { DropdownModule } from 'primeng/dropdown';
@@ -35,10 +35,18 @@ import { ImageUploadComponent } from '../image-upload/image-upload.component';
   templateUrl: './initial-survey-creation.component.html',
   styleUrl: './initial-survey-creation.component.css',
 })
-export class InitialSurveyCreationComponent {
+export class InitialSurveyCreationComponent implements OnInit {
   private _surveyCreationState = inject(SurveyCreateFormService);
   private _surveyApi = inject(SurveyApiService);
   private _fb = inject(FormBuilder);
+
+  redirectToNextPage = output<boolean>();
+  isRedirection = input<boolean>(false);
+
+  ngOnInit(): void {
+    if (this.isRedirection())
+      this.surveyForm.patchValue(this._surveyCreationState.state());
+  }
 
   surveyForm: FormGroup = new FormGroup(
     {
@@ -100,12 +108,13 @@ export class InitialSurveyCreationComponent {
     console.log(this.surveyForm);
 
     if (this.surveyForm.invalid) {
-      // this.validateAllFormFields(this.surveyForm);
-      // or
       this.surveyForm.markAllAsTouched();
     } else {
+      // update state
       this._surveyCreationState.setState(this.surveyForm.value);
       console.log(this._surveyCreationState.state());
+      // redirect to next page
+      this.redirectToNextPage.emit(true);
     }
   }
 }

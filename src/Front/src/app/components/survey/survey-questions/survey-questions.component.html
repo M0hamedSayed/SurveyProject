@@ -1,1 +1,22 @@
-<p>survey-questions works!</p>
+<!-- <app-one-question></app-one-question> -->
+<form [formGroup]="form" (ngSubmit)="submit()">
+    <div formArrayName="questions">
+        @for (q of questions.controls; track $index) {
+        <app-one-question [questionNo]="$index" [formControlName]="$index"></app-one-question>
+        }
+    </div>
+
+    <button type="submit">submit</button>
+</form>
+<!-- <form [formGroup]="form" (ngSubmit)="submit()">
+    <div formArrayName="questions">
+      <div *ngFor="let questionCtrl of questions.controls; let i = index">
+        <app-question-control [formControl]="questionCtrl"></app-question-control>
+        <button type="button" (click)="removeQuestion(i)">Remove Question</button>
+        <hr />
+      </div>
+    </div>
+  
+    <button type="button" (click)="addQuestion()">Add Question</button>
+    <button type="submit">Submit All</button>
+  </form> -->

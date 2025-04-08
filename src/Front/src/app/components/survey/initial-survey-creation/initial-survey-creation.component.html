@@ -7,14 +7,14 @@
                 <label for="nameEn">Survey Name En</label>
                 <input id="nameEn" type="text" pInputText formControlName="nameEn" />
                 @if (f.controls["nameEn"].touched && f.controls["nameEn"].errors?.['required']) {
-                <div class="text-red-600">Survey Name En is required.</div>
+                <div class="text-red-600">❌ Survey Name En is required.</div>
                 }
             </div>
             <div class="flex flex-col w-full">
                 <label for="nameAr">Survey Name Ar</label>
                 <input id="nameAr" type="text" pInputText formControlName="nameAr" />
                 @if (f.controls["nameAr"].touched && f.controls["nameAr"].errors?.['required']) {
-                <div class="text-red-600">Survey Name Ar is required.</div>
+                <div class="text-red-600">❌ Survey Name Ar is required.</div>
                 }
             </div>
         </div>
@@ -37,7 +37,7 @@
                 <p-calendar inputId="startDate" formControlName="startDate" [showTime]="true" [iconDisplay]="'input'"
                     [showIcon]="true" [hourFormat]="'12'" />
                 @if (f.controls["startDate"].touched && f.controls["startDate"].errors?.['required']) {
-                <div class="text-red-600">Publish Date is required.</div>
+                <div class="text-red-600">❌ Publish Date is required.</div>
                 }
             </div>
             <div class="flex flex-col w-full">
@@ -45,10 +45,10 @@
                 <p-calendar inputId="endDate" formControlName="endDate" [showTime]="true" [iconDisplay]="'input'"
                     [showIcon]="true" [hourFormat]="'12'" />
                 @if (f.controls["endDate"].touched && f.controls["endDate"].errors?.['required']) {
-                <div class="text-red-600">End Date is required.</div>
+                <div class="text-red-600">❌ End Date is required.</div>
                 }
                 @if (f.errors?.['minHourDiff'] && f.touched) {
-                <div class="text-red-600">End date must be at least 1 hour after start date</div>
+                <div class="text-red-600">❌ End date must be at least 1 hour after start date</div>
                 }
             </div>
         </div>

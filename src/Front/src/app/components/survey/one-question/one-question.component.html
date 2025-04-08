@@ -1,0 +1,136 @@
+<form [formGroup]="questionForm">
+    <div class="flex items-center w-full flex-1 gap-4">
+        <p>{{questionNo() + " . "}}</p>
+        <div class="flex items-center justify-center gap-4 flex-col w-[80%]">
+            <div class="flex flex-col w-full">
+                <input id="questionEn" aria-label="questionEn" type="text" pInputText formControlName="questionEn"
+                    placeholder="Add Question En" />
+                @if (f.controls["questionEn"].touched && f.controls["questionEn"].errors?.['required']) {
+                <div class="text-red-600">❌ Question En is required.</div>
+                }
+            </div>
+            <div class="flex flex-col w-full">
+                <input id="questionAr" aria-label="questionAr" type="text" pInputText formControlName="questionAr"
+                    placeholder="Add Question Ar" />
+                @if (f.controls["questionAr"].touched && f.controls["questionAr"].errors?.['required']) {
+                <div class="text-red-600">❌ Question Ar is required.</div>
+                }
+            </div>
+
+        </div>
+        <div class="flex flex-col min-w-52 ml-8">
+            <select pInputText formControlName="questionType">
+                <option value="" disabled>Question type :</option>
+                <option [value]="0">Sample</option>
+                <option [value]="1">One Choice</option>
+                <option [value]="2">Multi Choice</option>
+                <option [value]="3">Evaluate Choice</option>
+            </select>
+        </div>
+        <div>
+            <button (click)="onDelete.emit(true)"
+                class="bg-white text-red-600 text-sm p-2 shadow-sm !rounded-2xl">❌</button>
+        </div>
+    </div>
+    @if(choices.controls.length)
+    {
+    <div class="gap-4 m-4">
+        <p class="my-4">Choices</p>
+        <div formArrayName="choices">
+            @for (choice of choices.controls; track $index ) {
+            <div [formGroupName]="$index">
+                <div class="flex items-center justify-center gap-4 my-4">
+                    <p>{{$index+1}}</p>
+                    <div class="flex flex-col w-full">
+                        <input [id]="'textEn'+$index" aria-label="textEn" type="text" pInputText
+                            formControlName="textEn" placeholder="Add Choice En" />
+                        @if (choice.get("textEn")?.touched && choice.get("textEn")?.errors?.['required']) {
+                        <div class="text-red-600">❌ Text En is required.</div>
+                        }
+                    </div>
+                    <div class="flex flex-col w-full">
+                        <input [id]="'textAr'+$index" aria-label="textAr" type="text" pInputText
+                            formControlName="textAr" placeholder="Add Choice Ar" />
+                        @if (choice.get("textAr")?.touched && choice.get("textAr")?.errors?.['required']) {
+                        <div class="text-red-600">❌ Text Ar is required.</div>
+                        }
+                    </div>
+                    <div>
+                        <button (click)="removeChoice($index)"
+                            class="bg-white text-red-600 text-sm p-2 shadow-sm !rounded-2xl">❌</button>
+                    </div>
+                </div>
+            </div>
+            }
+            @if (f.errors?.['minValidChoicesRequired']) {
+            <div class="text-red-600">
+                ❌ At least 2 choices with non-empty text are required.</div>
+            }
+            <button (click)="addChoice()" class="bg-blue-500 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">+ Add
+                new Choice</button>
+        </div>
+    </div>
+    }
+    @else if(EvaluateChoices.controls.length)
+    {
+    <div class="gap-4 m-4">
+        <p class="my-4">Evaluate Choices</p>
+        <div formArrayName="evaluateChoices">
+            @for (choice of EvaluateChoices.controls; track $index ) {
+            <div [formGroupName]="$index">
+                <div class="flex items-center justify-center gap-4 my-4">
+                    <p>{{$index+1}}</p>
+                    <div>
+                        <p-button styleClass="!rounded-2xl !bg-white !p-2 !text-[1.2rem] !text-blue-500"
+                            (onClick)="op.toggle($event); choice.get('emotion')?.markAsTouched()">{{choice.get("emotion")?.value
+                            || '+'}}</p-button>
+                        <p-overlayPanel #op>
+                            <div>
+                                <emoji-picker (emoji-click)="onEmojiClick($event,$index);op.toggle($event) "
+                                    style="max-width: 320px;"></emoji-picker>
+                            </div>
+                        </p-overlayPanel>
+                        @if (choice.get("emotion")?.touched &&
+                        choice.get("emotion")?.errors?.['required']) {
+                        <div class="text-red-600">❌ emotion is required.</div>
+                        }
+                    </div>
+                    <div class="flex flex-col w-full">
+                        <input [id]="'textEn'+$index" aria-label="textEn" type="text" pInputText
+                            formControlName="textEn" placeholder="Add Choice En" />
+                        @if (choice.get("textEn")?.touched &&
+                        choice.get("textEn")?.errors?.['required']) {
+                        <div class="text-red-600">❌ Text En is required.</div>
+                        }
+                    </div>
+                    <div class="flex flex-col w-full">
+                        <input [id]="'textAr'+$index" aria-label="textAr" type="text" pInputText
+                            formControlName="textAr" placeholder="Add Choice Ar" />
+                        @if (choice.get("textAr")?.touched &&
+                        choice.get("textAr")?.errors?.['required']) {
+                        <div class="text-red-600">❌ Text Ar is required.</div>
+                        }
+                    </div>
+                    <div>
+                        <button (click)="removeChoice($index, true)"
+                            class="bg-white text-red-600 text-sm p-2 shadow-sm !rounded-2xl">❌</button>
+                    </div>
+                </div>
+            </div>
+            }
+            @if(f.errors?.['sampleShouldNotHaveChoices']){
+            <div class="text-red-600">❌ Sample type should not have any choices.</div>
+            }
+
+            @if (f.errors?.['invalidEvaluateChoices']) {
+            <div class="text-red-600">
+                ❌ At least 2 choices with valid emoji and text are required for evaluate choice.
+            </div>
+            }
+            <button (click)="addChoice(true)" class="bg-blue-500 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">+
+                Add
+                new Choice</button>
+        </div>
+    </div>
+    }
+</form>
