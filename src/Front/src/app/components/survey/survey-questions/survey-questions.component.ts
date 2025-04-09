@@ -1,20 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  input,
+  OnInit,
+  output,
+} from '@angular/core';
 import { OneQuestionComponent } from '../one-question/one-question.component';
 import {
+  AbstractControl,
   FormArray,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
+import {
+  ICreateQuestionSurvey,
+  ICreateSurveyState,
+} from '../../../common/Interfaces/ICreateSurveyState';
+import { SurveyCreateFormService } from '../../../services/logic/survey-create-form.service';
+import { SurveyApiService } from '../../../services/api/survey-api.service';
+import { switchMap } from 'rxjs';
 
-interface Question {
-  questionEn: string;
-  questionAr: string;
-  questionType: string;
-  choices: string[];
-  evaluateChoices: string[];
-}
 @Component({
   selector: 'app-survey-questions',
   standalone: true,
@@ -23,15 +32,45 @@ interface Question {
   styleUrl: './survey-questions.component.css',
 })
 export class SurveyQuestionsComponent implements OnInit {
-  form: FormGroup = new FormGroup({
-    questions: new FormArray<FormControl<Question>>([]),
-  });
+  private _surveyCreationState = inject(SurveyCreateFormService);
+  private _surveyAPi = inject(SurveyApiService);
+  private cdr = inject(ChangeDetectorRef);
+
+  redirectToPreviousPage = output<void>();
+
+  ngOnInit(): void {
+    const questions = this._surveyCreationState.state().questions;
+    console.log(questions);
+
+    if (questions?.length)
+      questions.forEach((q) => {
+        this.questions.push(new FormControl(q, Validators.required));
+      });
+    else this.addQuestion();
+    this.cdr.detectChanges();
+  }
+
+  form: FormGroup = new FormGroup(
+    {
+      questions: new FormArray<FormControl<ICreateQuestionSurvey>>([]),
+    },
+    { validators: this.questionValidator }
+  );
+
   get questions(): FormArray {
-    return this.form.get('questions') as FormArray<FormControl<Question>>;
+    return this.form.get('questions') as FormArray<
+      FormControl<ICreateQuestionSurvey>
+    >;
+  }
+
+  private questionValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.get('questions')?.value?.length)
+      return { questionRequired: true };
+    return null;
   }
 
   addQuestion() {
-    const newQuestion: Question = {
+    const newQuestion = {
       questionEn: '',
       questionAr: '',
       questionType: '',
@@ -47,15 +86,64 @@ export class SurveyQuestionsComponent implements OnInit {
 
   submit() {
     this.form.markAllAsTouched();
+    if (this.form.invalid) return;
 
-    if (this.form.valid) {
-      console.log('Submitted Questions:', this.form);
+    this._surveyCreationState.setState(this.form.value);
+    console.log('Submitted Questions:', this.form);
+    // call api
+    this.handleSaveSurvey();
+    console.log(this._surveyCreationState.state());
+  }
+
+  handleSaveSurvey() {
+    const image = this._surveyCreationState.state().image;
+    if (image) {
+      const formData = new FormData();
+      formData.append('image', image);
+      this._surveyAPi
+        .uploadSurveyPhoto(formData)
+        .pipe(
+          switchMap((res: any) => {
+            const finalSurveyData: ICreateSurveyState = {
+              ...this._surveyCreationState.state(),
+              imageUrl: res?.Data || '',
+            };
+            delete finalSurveyData.image;
+
+            return this._surveyAPi.createSurvey(finalSurveyData);
+          })
+        )
+        .subscribe({
+          next: (result) => {
+            console.log('Survey created successfully', result);
+          },
+          error: (err) => {
+            console.error('Error occurred', err);
+          },
+        });
     } else {
-      console.warn('Form invalid', this.form);
+      const finalSurveyData: ICreateSurveyState = {
+        ...this._surveyCreationState.state(),
+        imageUrl: '',
+      };
+      delete finalSurveyData.image;
+      this._surveyAPi.createSurvey(finalSurveyData).subscribe({
+        next: (result) => {
+          console.log('Survey created successfully', result);
+        },
+        error: (err) => {
+          console.error('Error occurred', err);
+        },
+      });
     }
   }
 
-  ngOnInit(): void {
-    this.addQuestion();
+  handleDeleteQuestion(index: number) {
+    this.questions.removeAt(index);
+  }
+
+  onPreviousPage() {
+    this._surveyCreationState.setState(this.form.value);
+    this.redirectToPreviousPage.emit();
   }
 }

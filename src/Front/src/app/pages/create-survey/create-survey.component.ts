@@ -10,24 +10,30 @@ import { InitialSurveyCreationComponent } from '../../components/survey/initial-
 })
 export class CreateSurveyComponent implements OnInit {
   viewComponentRef = viewChild('container', { read: ViewContainerRef });
+  // Store output handlers here
+  private outputs: Record<string, Function> = {};
 
   ngOnInit(): void {
-    this.loadDynamicComponent(
-      true,
-      { isRedirection: false },
-      {
-        redirectToNextPage: () => {
-          console.log('Proceeding to questions...');
-          this.loadDynamicComponent(true);
-        },
-      }
-    );
+    this.setupOutputHandlers();
+    this.loadDynamicComponent(false, { isRedirection: false });
+  }
+
+  private setupOutputHandlers() {
+    this.outputs = {
+      redirectToNextPage: () => {
+        console.log('Redirected to questions...');
+        this.loadDynamicComponent(true);
+      },
+      redirectToPreviousPage: () => {
+        console.log('Redirected to initial...');
+        this.loadDynamicComponent(false, { isRedirection: true });
+      },
+    };
   }
 
   async loadDynamicComponent(
     redirectToQuestions: boolean = false,
-    inputs: Record<string, any> = {},
-    outputs: Record<string, Function> = {}
+    inputs: Record<string, any> = {}
   ) {
     let dComponent;
 
@@ -52,13 +58,11 @@ export class CreateSurveyComponent implements OnInit {
       }
     }
 
-    // Bind outputs (assumes EventEmitter)
-    if (cmpRef && outputs) {
-      const instance = cmpRef.instance as any; // 👈 safely cast
-      for (const [key, handler] of Object.entries(outputs)) {
-        if (instance[key]?.subscribe) {
-          instance[key].subscribe(handler);
-        }
+    // Bind outputs
+    for (const [key, handler] of Object.entries(this.outputs)) {
+      const instance = cmpRef?.instance as any;
+      if (instance[key]?.subscribe) {
+        instance[key].subscribe(handler);
       }
     }
   }

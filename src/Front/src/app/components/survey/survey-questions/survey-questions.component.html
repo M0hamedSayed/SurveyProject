@@ -2,11 +2,32 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
     <div formArrayName="questions">
         @for (q of questions.controls; track $index) {
-        <app-one-question [questionNo]="$index" [formControlName]="$index"></app-one-question>
+        <div class="m-4 ">
+            <app-one-question (onDelete)="handleDeleteQuestion($index)" [questionNo]="$index"
+                [formControlName]="$index"></app-one-question>
+        </div>
         }
     </div>
+    @if (form.errors?.['questionRequired']) {
+    <div class="text-red-600">
+        ❌ At least 1 question required.
+    </div>
+    }
+    <button (click)="addQuestion()" class="bg-blue-500 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">+
+        Add
+        new Question</button>
+    <div class="flex items-center gap-8 m-8 justify-between">
 
-    <button type="submit">submit</button>
+        <button (click)="onPreviousPage()"
+            class="bg-blue-300 border-blue-600 text-blue-600 text-sm p-2 my-4 shadow-sm !rounded-2xl">
+            previous : Survey
+        </button>
+        <button type="submit" [disabled]="form.invalid"
+            class="bg-green-600 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">
+            submit
+        </button>
+    </div>
+
 </form>
 <!-- <form [formGroup]="form" (ngSubmit)="submit()">
     <div formArrayName="questions">

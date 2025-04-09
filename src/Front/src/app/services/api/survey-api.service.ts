@@ -11,10 +11,10 @@ export class SurveyApiService {
   surveyApi = environment.SURVEY_API_URL;
 
   uploadSurveyPhoto(body: FormData) {
-    this._http.post(`${this.surveyApi}/`, body);
+    return this._http.post(`${this.surveyApi}/Survey/add`, body);
   }
 
   createSurvey(body: ICreateSurveyState) {
-    this._http.post(`${this.surveyApi}/`, body);
+    return this._http.post(`${this.surveyApi}/Survey/add-survey-photo`, body);
   }
 }

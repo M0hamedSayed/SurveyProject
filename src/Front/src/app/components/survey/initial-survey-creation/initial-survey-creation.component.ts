@@ -37,10 +37,8 @@ import { ImageUploadComponent } from '../image-upload/image-upload.component';
 })
 export class InitialSurveyCreationComponent implements OnInit {
   private _surveyCreationState = inject(SurveyCreateFormService);
-  private _surveyApi = inject(SurveyApiService);
-  private _fb = inject(FormBuilder);
 
-  redirectToNextPage = output<boolean>();
+  redirectToNextPage = output<void>();
   isRedirection = input<boolean>(false);
 
   ngOnInit(): void {
@@ -114,7 +112,7 @@ export class InitialSurveyCreationComponent implements OnInit {
       this._surveyCreationState.setState(this.surveyForm.value);
       console.log(this._surveyCreationState.state());
       // redirect to next page
-      this.redirectToNextPage.emit(true);
+      this.redirectToNextPage.emit();
     }
   }
 }

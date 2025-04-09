@@ -1,7 +1,7 @@
 import { QuestionType } from '../enums/questionType';
 
 export interface ICreateSurveyState extends ICreateSurvey {
-  image: File;
+  image?: File;
 }
 
 export interface ICreateSurvey {

@@ -66,6 +66,11 @@
             <div class="text-red-600">
                 ❌ At least 2 choices with non-empty text are required.</div>
             }
+            @else if (choices.errors?.['duplicateText']) {
+            <div class="text-red-600">
+                ❌ choice duplication.
+            </div>
+            }
             <button (click)="addChoice()" class="bg-blue-500 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">+ Add
                 new Choice</button>
         </div>
@@ -125,6 +130,11 @@
             @if (f.errors?.['invalidEvaluateChoices']) {
             <div class="text-red-600">
                 ❌ At least 2 choices with valid emoji and text are required for evaluate choice.
+            </div>
+            }
+            @else if (EvaluateChoices.errors?.['duplicateText']) {
+            <div class="text-red-600">
+                ❌ choice duplication.
             </div>
             }
             <button (click)="addChoice(true)" class="bg-blue-500 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">+

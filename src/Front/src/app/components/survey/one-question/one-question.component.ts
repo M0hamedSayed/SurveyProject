@@ -2,6 +2,7 @@ import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   forwardRef,
+  inject,
   Input,
   input,
   OnInit,
@@ -25,6 +26,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import 'emoji-picker-element';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ButtonModule } from 'primeng/button';
+import { SurveyCreateFormService } from '../../../services/logic/survey-create-form.service';
+import { distinctUntilChanged, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-one-question',
@@ -56,24 +59,32 @@ export class OneQuestionComponent
 {
   questionNo = input<number>(1);
   onDelete = output<boolean>();
+  patching = true;
 
   ngOnInit(): void {
     this.questionForm
       .get('questionType')!
-      .valueChanges.subscribe((value: any) => {
-        this.questionForm.get('choices')!.updateValueAndValidity();
-        this.questionForm.get('evaluateChoices')!.updateValueAndValidity();
-        this.EvaluateChoices.clear();
-        this.choices.clear();
-        if (
-          value == QuestionType.oneChoice ||
-          value == QuestionType.multiChoice
-        ) {
-          this.addChoice(false);
-          this.addChoice(false);
-        } else if (value == QuestionType.evaluate) {
-          this.addChoice(true);
-          this.addChoice(true);
+      .valueChanges.pipe(
+        startWith(this.questionForm.get('questionType')!.value),
+        distinctUntilChanged()
+      )
+      .subscribe((value: any) => {
+        if (this.patching) return;
+        else {
+          this.questionForm.get('choices')!.updateValueAndValidity();
+          this.questionForm.get('evaluateChoices')!.updateValueAndValidity();
+          this.EvaluateChoices.clear();
+          this.choices.clear();
+          if (
+            value == QuestionType.oneChoice ||
+            value == QuestionType.multiChoice
+          ) {
+            this.addChoice(false);
+            this.addChoice(false);
+          } else if (value == QuestionType.evaluate) {
+            this.addChoice(true);
+            this.addChoice(true);
+          }
         }
       });
   }
@@ -85,8 +96,8 @@ export class OneQuestionComponent
       questionType: new FormControl('', {
         validators: Validators.required,
       }),
-      choices: new FormArray([]),
-      evaluateChoices: new FormArray([]),
+      choices: new FormArray([], this.validateChoiceText),
+      evaluateChoices: new FormArray([], this.validateChoiceText),
     },
     {
       validators: this.choicesValidator(),
@@ -97,9 +108,45 @@ export class OneQuestionComponent
   private onTouched = () => {};
 
   writeValue(obj: any): void {
+    this.patching = true;
+
     if (obj) {
-      this.questionForm.patchValue(obj);
+      // Patch simple form fields
+      this.questionForm.patchValue(
+        {
+          questionEn: obj?.questionEn || '',
+          questionAr: obj?.questionAr || '',
+          questionType: obj?.questionType || '',
+        },
+        { emitEvent: false }
+      );
+
+      // Rebuild 'choices' FormArray
+      this.choices.clear();
+      if (obj.choices && Array.isArray(obj.choices)) {
+        obj.choices.forEach((choice: any) => {
+          this.addChoice(false, choice);
+        });
+      }
+
+      // Rebuild 'evaluateChoices' FormArray
+      this.EvaluateChoices.clear();
+      if (obj.evaluateChoices && Array.isArray(obj.evaluateChoices)) {
+        obj.evaluateChoices.forEach((eChoice: any) => {
+          this.addChoice(true, eChoice);
+        });
+      }
     }
+    // manually trigger valueChanges once all values are set
+    this.questionForm.updateValueAndValidity({
+      onlySelf: false,
+      emitEvent: true,
+    });
+
+    // small delay to let valueChanges settle
+    setTimeout(() => {
+      this.patching = false;
+    });
   }
 
   registerOnChange(fn: any): void {
@@ -116,7 +163,31 @@ export class OneQuestionComponent
 
   // Custom validator
   validate(control: AbstractControl): ValidationErrors | null {
-    return this.questionForm.valid ? null : this.questionForm.errors;
+    if (this.questionForm.valid) return null;
+
+    const errors: ValidationErrors = {};
+
+    // form errors
+    Object.keys(this.questionForm.controls).forEach((key) => {
+      const controlErrors = this.questionForm.controls[key].errors;
+      if (controlErrors) errors[key] = controlErrors;
+    });
+    // choices errors
+    this.choices.controls.forEach((key) => {
+      Object.keys((key as FormGroup).controls).forEach((k) => {
+        const controlErrors = (key as FormGroup).controls[k].errors;
+        if (controlErrors) errors[k] = controlErrors;
+      });
+    });
+    // evaluate choices errors
+    this.EvaluateChoices.controls.forEach((key) => {
+      Object.keys((key as FormGroup).controls).forEach((k) => {
+        const controlErrors = (key as FormGroup).controls[k].errors;
+        if (controlErrors) errors[k] = controlErrors;
+      });
+    });
+
+    return Object.keys(errors).length ? errors : this.questionForm.errors;
   }
 
   private choicesValidator(): (
@@ -148,28 +219,131 @@ export class OneQuestionComponent
     };
   }
 
+  validateChoiceText(control: AbstractControl): ValidationErrors | null {
+    const formArray = control as FormArray;
+    const seenTextEn = new Map<string, number[]>();
+    const seenTextAr = new Map<string, number[]>();
+    const seenEmoji = new Map<string, number[]>();
+
+    formArray.controls.forEach((group, index) => {
+      const textEn = group.get('textEn')?.value?.trim().toLowerCase();
+      const textAr = group.get('textAr')?.value?.trim().toLowerCase();
+      const emoji = group.get('emotion')?.value?.trim()?.toLowerCase();
+
+      // handle textEn
+      if (textEn) {
+        if (!seenTextEn.has(textEn)) seenTextEn.set(textEn, []);
+        seenTextEn.get(textEn)!.push(index);
+      }
+
+      // handle textAr
+      if (textAr) {
+        if (!seenTextAr.has(textAr)) seenTextAr.set(textAr, []);
+        seenTextAr.get(textAr)!.push(index);
+      }
+
+      // handle emoji
+      if (emoji) {
+        if (!seenEmoji.has(emoji)) seenEmoji.set(emoji, []);
+        seenEmoji.get(emoji)!.push(index);
+      }
+    });
+
+    // Clear previous errors
+    formArray.controls.forEach((group) => {
+      const textEnControl = group.get('textEn');
+      const textArControl = group.get('textAr');
+      const emojiControl = group.get('emotion');
+
+      if (textEnControl?.hasError('duplicate')) {
+        const otherErrors = { ...textEnControl.errors };
+        delete otherErrors['duplicate'];
+        textEnControl.setErrors(
+          Object.keys(otherErrors).length ? otherErrors : null
+        );
+      }
+
+      if (textArControl?.hasError('duplicate')) {
+        const otherErrors = { ...textArControl.errors };
+        delete otherErrors['duplicate'];
+        textArControl.setErrors(
+          Object.keys(otherErrors).length ? otherErrors : null
+        );
+      }
+      if (emojiControl?.hasError('duplicate')) {
+        const otherErrors = { ...emojiControl.errors };
+        delete otherErrors['duplicate'];
+        emojiControl.setErrors(
+          Object.keys(otherErrors).length ? otherErrors : null
+        );
+      }
+    });
+
+    // Apply duplicate errors
+    let hasDuplicate = false;
+    seenTextEn.forEach((indices) => {
+      if (indices.length > 1) {
+        hasDuplicate = true;
+        indices.forEach((i) => {
+          const textEnControl = formArray.at(i).get('textEn');
+          const existingErrors = textEnControl?.errors || {};
+          textEnControl?.setErrors({ ...existingErrors, duplicate: true });
+        });
+      }
+    });
+    seenTextAr.forEach((indices) => {
+      if (indices.length > 1) {
+        hasDuplicate = true;
+        indices.forEach((i) => {
+          const textArControl = formArray.at(i).get('textAr');
+          const existingErrors = textArControl?.errors || {};
+          textArControl?.setErrors({ ...existingErrors, duplicate: true });
+        });
+      }
+    });
+    seenEmoji.forEach((indices) => {
+      if (indices.length > 1) {
+        hasDuplicate = true;
+        indices.forEach((i) => {
+          const emojiControl = formArray.at(i).get('emotion');
+          const existingErrors = emojiControl?.errors || {};
+          emojiControl?.setErrors({ ...existingErrors, duplicate: true });
+        });
+      }
+    });
+
+    return hasDuplicate ? { duplicateText: true } : null;
+  }
+
   get f() {
     return this.questionForm;
   }
-  get choices(): FormArray {
-    return this.questionForm.get('choices') as FormArray;
+  get choices(): FormArray<FormGroup> {
+    return this.questionForm.get('choices') as FormArray<FormGroup>;
   }
-  get EvaluateChoices(): FormArray {
-    return this.questionForm.get('evaluateChoices') as FormArray;
+  get EvaluateChoices(): FormArray<FormGroup> {
+    return this.questionForm.get('evaluateChoices') as FormArray<FormGroup>;
   }
   //#endregion
   //#region handle choices
-  createChoice(isEvaluate: boolean = false): FormGroup {
+  createChoice(
+    isEvaluate: boolean = false,
+    obj = { textEn: '', textAr: '', emotion: '' }
+  ): FormGroup {
     const controls: {
       textAr: FormControl;
       textEn: FormControl;
       emotion?: FormControl;
     } = {
-      textEn: new FormControl('', { validators: Validators.required }),
-      textAr: new FormControl('', { validators: Validators.required }),
+      textEn: new FormControl(obj.textEn ?? '', {
+        validators: Validators.required,
+      }),
+      textAr: new FormControl(obj.textAr, {
+        validators: Validators.required,
+      }),
     };
     if (isEvaluate)
-      controls.emotion = new FormControl('', {
+      controls.emotion = new FormControl(obj.emotion, {
         validators: Validators.required,
       });
     return new FormGroup({
@@ -177,10 +351,13 @@ export class OneQuestionComponent
     });
   }
 
-  addChoice(isEvaluate: boolean = false) {
+  addChoice(
+    isEvaluate: boolean = false,
+    obj = { textEn: '', textAr: '', emotion: '' }
+  ) {
     isEvaluate
-      ? this.EvaluateChoices.push(this.createChoice(true))
-      : this.choices.push(this.createChoice());
+      ? this.EvaluateChoices.push(this.createChoice(true, obj))
+      : this.choices.push(this.createChoice(false, obj));
   }
 
   removeChoice(index: number, isEvaluate: boolean = false) {
