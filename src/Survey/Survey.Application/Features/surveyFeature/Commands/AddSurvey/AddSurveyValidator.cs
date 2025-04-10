@@ -70,22 +70,22 @@ namespace Survey.Application.Features.surveyFeature.Commands.AddSurvey
                 .MaximumLength(300).WithMessage("The Max Length is 300");
 
             RuleFor(x => x)
-                .Must(x => (x.Choices != null && x.EvaluateChoices == null) ||
-                           (x.Choices == null && x.EvaluateChoices != null) ||
+                .Must(x => ((x.Choices != null || x.Choices?.Count > 0) && (x.EvaluateChoices == null || !x.EvaluateChoices.Any())) ||
+                           ((x.Choices == null || !x.Choices.Any()) &&( x.EvaluateChoices != null || x.EvaluateChoices?.Count > 0)) ||
                            (x.QuestionType == QuestionType.Sample))
                 .WithMessage("Each question must have either Choices or EvaluateChoices, but not both.");
             RuleFor(x => x)
                 .Must(x =>
-                (x.Choices == null && x.EvaluateChoices == null && (x.QuestionType == QuestionType.Sample || x.QuestionType == QuestionType.Evaluate)) ||
-                (x.EvaluateChoices != null && x.QuestionType == QuestionType.Evaluate) ||
-                (x.Choices != null && (x.QuestionType == QuestionType.OneChoice || x.QuestionType == QuestionType.MultiChoice))
+                ((x.Choices == null || !x.Choices.Any()) && (x.EvaluateChoices == null || !x.EvaluateChoices.Any()) && (x.QuestionType == QuestionType.Sample || x.QuestionType == QuestionType.Evaluate)) ||
+                ((x.EvaluateChoices != null || x.EvaluateChoices?.Count > 0) && x.QuestionType == QuestionType.Evaluate) ||
+                ((x.Choices != null || x.Choices?.Count > 0) && (x.QuestionType == QuestionType.OneChoice || x.QuestionType == QuestionType.MultiChoice))
                 ).WithMessage("Invalid Question");
             RuleFor(x => x.Choices)
-                .Must(choices => choices == null || choices.Count <= 10)
+                .Must(choices => choices == null || choices.Count <= 10 || !choices.Any())
                 .WithMessage("A question cannot have more than 10 choices.");
 
             RuleFor(x => x.EvaluateChoices)
-                .Must(choices => choices == null || choices.Count <= 10)
+                .Must(choices => choices == null || choices.Count <= 10 || !choices.Any())
                 .WithMessage("A question cannot have more than 10 evaluation choices.");
 
             RuleForEach(x => x.Choices).SetValidator(new ChoiceSurveyValidator());

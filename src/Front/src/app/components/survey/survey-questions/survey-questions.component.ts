@@ -19,15 +19,18 @@ import {
 import {
   ICreateQuestionSurvey,
   ICreateSurveyState,
+  ISurveyType,
 } from '../../../common/Interfaces/ICreateSurveyState';
 import { SurveyCreateFormService } from '../../../services/logic/survey-create-form.service';
 import { SurveyApiService } from '../../../services/api/survey-api.service';
 import { switchMap } from 'rxjs';
+import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-survey-questions',
   standalone: true,
-  imports: [OneQuestionComponent, ReactiveFormsModule],
+  imports: [OneQuestionComponent, ReactiveFormsModule, ButtonModule],
   templateUrl: './survey-questions.component.html',
   styleUrl: './survey-questions.component.css',
 })
@@ -35,6 +38,7 @@ export class SurveyQuestionsComponent implements OnInit {
   private _surveyCreationState = inject(SurveyCreateFormService);
   private _surveyAPi = inject(SurveyApiService);
   private cdr = inject(ChangeDetectorRef);
+  private _router = inject(Router);
 
   redirectToPreviousPage = output<void>();
 
@@ -109,7 +113,9 @@ export class SurveyQuestionsComponent implements OnInit {
               imageUrl: res?.Data || '',
             };
             delete finalSurveyData.image;
-
+            finalSurveyData.surveyTypeId =
+              (finalSurveyData.surveyTypeId as ISurveyType)?.id ||
+              finalSurveyData.surveyTypeId;
             return this._surveyAPi.createSurvey(finalSurveyData);
           })
         )
@@ -127,9 +133,13 @@ export class SurveyQuestionsComponent implements OnInit {
         imageUrl: '',
       };
       delete finalSurveyData.image;
+      finalSurveyData.surveyTypeId =
+        (finalSurveyData.surveyTypeId as ISurveyType)?.id ||
+        finalSurveyData.surveyTypeId;
       this._surveyAPi.createSurvey(finalSurveyData).subscribe({
         next: (result) => {
           console.log('Survey created successfully', result);
+          this._router.navigate(['survey']);
         },
         error: (err) => {
           console.error('Error occurred', err);

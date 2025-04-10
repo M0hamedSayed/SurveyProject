@@ -47,9 +47,9 @@ namespace Survey.Domain.Models.Survey
         [Column("closing_statement_ar")]
         public string? ClosingStatementAr { get; private set; }
         [Column("start_date")]
-        public DateTime StartDate { get; private set; }
+        public DateTimeOffset StartDate { get; private set; }
         [Column("end_date")]
-        public DateTime EndDate { get; private set; }
+        public DateTimeOffset EndDate { get; private set; }
         [Column("timezone")]
         [MaxLength(100)]
         public string Timezone { get; private set; }

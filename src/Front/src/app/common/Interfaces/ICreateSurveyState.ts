@@ -5,7 +5,7 @@ export interface ICreateSurveyState extends ICreateSurvey {
 }
 
 export interface ICreateSurvey {
-  surveyTypeId: string;
+  surveyTypeId: string | ISurveyType;
   nameEn: string;
   nameAr: string;
   startDate: Date;
@@ -21,12 +21,18 @@ export interface ICreateSurvey {
   questions: ICreateQuestionSurvey[];
 }
 
+export interface ISurveyType {
+  id: string;
+  nameEn: string;
+  nameAr: string;
+}
+
 export interface ICreateQuestionSurvey {
   questionEn: string;
   questionAr: string;
   questionType: QuestionType;
-  choices: ICreateChoiceSurvey[];
-  evaluateChoices: ICreateEvaluateChoiceSurvey[];
+  choices?: ICreateChoiceSurvey[];
+  evaluateChoices?: ICreateEvaluateChoiceSurvey[];
 }
 
 export interface ICreateChoiceSurvey {

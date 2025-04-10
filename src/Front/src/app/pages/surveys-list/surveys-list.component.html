@@ -1,0 +1,86 @@
+<form class="m-8" [formGroup]="searchForm">
+    <div class="flex items-center gap-2 justify-between">
+        <div class="flex items-center gap-4 my-4">
+            <div class="flex flex-col w-full">
+                <label for="search">Survey Name</label>
+                <p-iconField iconPosition="left">
+                    <p-inputIcon styleClass="!text-[1.5rem] !top-[0%]">⌕</p-inputIcon>
+                    <input id="search" type="text" pInputText formControlName="search" placeholder="Search.." />
+                </p-iconField>
+            </div>
+            <div class="flex flex-col w-full">
+                <label for="startDate">Start Date</label>
+                <p-calendar [showClear]="true" styleClass="!min-w-60" placeholder="Start Date" inputId="startDate"
+                    formControlName="startDate" [showTime]="true" [iconDisplay]="'input'" [showIcon]="true"
+                    [hourFormat]="'12'" />
+
+            </div>
+            <div class="flex flex-col w-full">
+                <label for="endDate">End Date</label>
+                <p-calendar [showClear]="true" styleClass="!min-w-60" placeholder="End Date" inputId="endDate"
+                    formControlName="endDate" [showTime]="true" [iconDisplay]="'input'" [showIcon]="true"
+                    [hourFormat]="'12'" [timeOnly]="false" />
+            </div>
+            <div class="flex flex-col w-full">
+                <label for="surveyTypeId">Survey Type</label>
+                <app-survey-type-auto-complete class="w-full" [placeHolder]="'All'"
+                    [control]="getControl('surveyTypeId')"></app-survey-type-auto-complete>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <p-button styleClass="!bg-white !text-purple-600" (onClick)="onSearch()" [routerLink]="'/survey/create'"
+                [rounded]="true">➕
+                Create</p-button>
+
+            <p-button styleClass="!bg-blue-600" (onClick)="onSearch()" [rounded]="true">Search</p-button>
+
+            <p-button styleClass="!text-blue-600 !bg-white" (onClick)="onReload()" [rounded]="true">⟳</p-button>
+        </div>
+    </div>
+
+    <div class="my-4 flex items-center gap-2">
+        <p>Is Active</p>
+        <p-selectButton [optionLabel]="'name'" [optionValue]="'value'" [options]="isActiveOptions"
+            formControlName="isActive" />
+    </div>
+</form>
+
+<p-dataView styleClass="!mx-8" [value]="allSurveys" [paginator]="true" [paginator]="true" [rows]="limit"
+    [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="loadMoreData($event)" [loading]="loading()">
+    <ng-template pTemplate="list" let-surveys>
+        @for (item of surveys; track $index) {
+        <div class="p-2 my-6 border-gray-400 border rounded-lg">
+            <div class="flex items-center gap-4 b-2 border-gray-400 border rounded-lg">
+
+                <img [alt]="item.nameEn"
+                    [src]=" item.imageUrl ? api+item.imageUrl : 'https://americansuppressorassociation.com/wp-content/plugins/donation-for-woocommerce/assets/images/no-image-cart-campaign.png'"
+                    width="100" height="100" />
+                <p>{{item.nameEn}}</p>
+            </div>
+            <div class="p-2 flex items-center flex-1 justify-around">
+                <div class="flex flex-col items-center justify-start">
+                    <p>Survey Type</p>
+                    <p>{{item.surveyTypeNameEn}}</p>
+                </div>
+                <div class="flex flex-col items-center justify-start">
+                    <p>Status</p>
+                    <p>{{item.isActive ? 'Active' : 'NotActive'}}</p>
+                </div>
+                <div class="flex flex-col items-center justify-start">
+                    <p>Start Date</p>
+                    <p>{{item.startDate | date:'medium'}}</p>
+                </div>
+                <div class="flex flex-col items-center justify-start">
+                    <p>End Date</p>
+                    <p>{{item.endDate | date:'medium'}}</p>
+                </div>
+                <div class="flex flex-col items-center justify-start">
+                    <p>Is Required</p>
+                    <p>{{item.isRequired}}</p>
+                </div>
+            </div>
+        </div>
+        }
+
+    </ng-template>
+</p-dataView>

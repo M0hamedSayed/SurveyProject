@@ -15,8 +15,8 @@ namespace Survey.Infrastructure.Seeding
             if (usersCount <= 0)
             {
                 var user = await domainService.RegisterUserAsync("Mohamed Sayed", "admin@admin.com", "Ms@123456", "Admin", null, true);
-                await domainService.RegisterUserAsync("Mohamed Sayed 1", "User1@admin.com", "Ms@123456", "User", user.Id, true);
-                await domainService.RegisterUserAsync("Mohamed Sayed 2", "User2@admin.com", "Ms@123456", "User", user.Id, true);
+                await domainService.RegisterUserAsync("Mohamed Sayed 1", "mohamed.sayed.atiaa@gmail.com", "Ms@123456", "User", user.Id, true);
+                await domainService.RegisterUserAsync("Mohamed Sayed 2", "mohamedsayed.alqemam@gmail.com", "Ms@123456", "User", user.Id, true);
             }
             var typesCount = await unitOfWork.SurveyTypeRepository.CountAsync();
             if (typesCount <= 0) 

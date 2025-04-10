@@ -1,7 +1,20 @@
 <section class="m-8">
+    <div class="p-6 my-4 border border-gray-300 rounded-2xl flex items-center justify-between">
+        <h2 class="font-bold text-blue-600 text-2xl">Create Survey</h2>
+        <p-button styleClass="!bg-white !text-purple-600" [routerLink]="'/survey'" [rounded]="true">↩</p-button>
+    </div>
     <h4>General Information</h4>
 
     <form class="flex flex-col gap-4 text-sm" [formGroup]="surveyForm">
+        <div class="flex items-center justify-center gap-4">
+            <div class="flex flex-col w-full">
+                <app-survey-type-auto-complete class="w-full"
+                    [control]="getControl('surveyTypeId')"></app-survey-type-auto-complete>
+                @if (f.controls["surveyTypeId"].touched && f.controls["surveyTypeId"].errors?.['required']) {
+                <div class="text-red-600">❌ Survey Type is required.</div>
+                }
+            </div>
+        </div>
         <div class="flex items-center justify-center gap-4">
             <div class="flex flex-col w-full">
                 <label for="nameEn">Survey Name En</label>
@@ -34,16 +47,17 @@
         <div class="flex items-center justify-center gap-4">
             <div class="flex flex-col w-full">
                 <label for="startDate">Publish Date</label>
-                <p-calendar inputId="startDate" formControlName="startDate" [showTime]="true" [iconDisplay]="'input'"
-                    [showIcon]="true" [hourFormat]="'12'" />
+                <p-calendar styleClass="!w-full" placeholder="Start Date" inputId="startDate"
+                    formControlName="startDate" [showTime]="true" [iconDisplay]="'input'" [showIcon]="true"
+                    [hourFormat]="'12'" />
                 @if (f.controls["startDate"].touched && f.controls["startDate"].errors?.['required']) {
                 <div class="text-red-600">❌ Publish Date is required.</div>
                 }
             </div>
             <div class="flex flex-col w-full">
                 <label for="endDate">End Date</label>
-                <p-calendar inputId="endDate" formControlName="endDate" [showTime]="true" [iconDisplay]="'input'"
-                    [showIcon]="true" [hourFormat]="'12'" />
+                <p-calendar placeholder="End Date" inputId="endDate" formControlName="endDate" [showTime]="true"
+                    [iconDisplay]="'input'" styleClass="!w-full" [showIcon]="true" [hourFormat]="'12'" />
                 @if (f.controls["endDate"].touched && f.controls["endDate"].errors?.['required']) {
                 <div class="text-red-600">❌ End Date is required.</div>
                 }

@@ -19,6 +19,7 @@ namespace Survey.Application.Mapping.SurveyMapping
                 .Map(dest => dest.DescriptionEn, src => src.DescriptionEn)
                 .Map(dest => dest.DescriptionAr, src => src.DescriptionAr)
                 .Map(dest => dest.IsRequired, src => src.IsRequired)
+                .Map(dest => dest.IsActive, src => src.IsActive)
                 .Map(dest => dest.Timezone, src => src.Timezone)
                 .Map(dest => dest.Questions, src => src.questions.Adapt<List<QuestionSurveyResult>>())
                 .Map(dest => dest.SurveyTypeNameEn, src => src.SurveyType.NameEn)

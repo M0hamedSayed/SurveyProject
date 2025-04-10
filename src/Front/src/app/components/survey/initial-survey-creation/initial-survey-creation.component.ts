@@ -1,6 +1,5 @@
 import { Component, inject, input, OnInit, output } from '@angular/core';
 import { SurveyCreateFormService } from '../../../services/logic/survey-create-form.service';
-import { SurveyApiService } from '../../../services/api/survey-api.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -14,10 +13,11 @@ import {
   FormGroup,
   ReactiveFormsModule,
   ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
+import { SurveyTypeAutoCompleteComponent } from '../survey-type-auto-complete/survey-type-auto-complete.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-initial-survey-creation',
@@ -31,6 +31,8 @@ import { ImageUploadComponent } from '../image-upload/image-upload.component';
     ReactiveFormsModule,
     ImageUploadComponent,
     ButtonModule,
+    SurveyTypeAutoCompleteComponent,
+    RouterLink,
   ],
   templateUrl: './initial-survey-creation.component.html',
   styleUrl: './initial-survey-creation.component.css',
@@ -48,7 +50,7 @@ export class InitialSurveyCreationComponent implements OnInit {
 
   surveyForm: FormGroup = new FormGroup(
     {
-      surveyTypeId: new FormControl('test', {
+      surveyTypeId: new FormControl('', {
         validators: Validators.required,
       }),
       nameEn: new FormControl('', { validators: Validators.required }),
@@ -67,6 +69,10 @@ export class InitialSurveyCreationComponent implements OnInit {
       validators: this.minHourDifference,
     }
   );
+
+  getControl(name: string) {
+    return this.surveyForm.controls[name] as FormControl;
+  }
 
   minHourDifference(group: AbstractControl): ValidationErrors | null {
     const start = group.get('startDate')?.value;
@@ -109,6 +115,7 @@ export class InitialSurveyCreationComponent implements OnInit {
       this.surveyForm.markAllAsTouched();
     } else {
       // update state
+
       this._surveyCreationState.setState(this.surveyForm.value);
       console.log(this._surveyCreationState.state());
       // redirect to next page

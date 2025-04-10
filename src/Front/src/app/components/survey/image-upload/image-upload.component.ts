@@ -1,4 +1,10 @@
-import { Component, ElementRef, inject, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { SurveyCreateFormService } from '../../../services/logic/survey-create-form.service';
 
 @Component({
@@ -8,7 +14,7 @@ import { SurveyCreateFormService } from '../../../services/logic/survey-create-f
   templateUrl: './image-upload.component.html',
   styleUrl: './image-upload.component.css',
 })
-export class ImageUploadComponent {
+export class ImageUploadComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   private _surveyForm = inject(SurveyCreateFormService);
 
@@ -17,6 +23,11 @@ export class ImageUploadComponent {
   maxSizeMB = 10;
   maxWidth = 1200;
   maxHeight = 1200;
+
+  ngOnInit(): void {
+    if (this._surveyForm.state()?.image)
+      this.handleImagePreview(this._surveyForm.state().image as File, false);
+  }
 
   openFileSelector() {
     this.fileInput.nativeElement.click();
@@ -46,19 +57,41 @@ export class ImageUploadComponent {
     }
 
     // 3. Check dimensions
+    this.handleImagePreview(file, true);
+    // const reader = new FileReader();
+    // reader.onload = (e: any) => {
+    //   const img = new Image();
+    //   img.src = e.target.result;
+
+    //   img.onload = () => {
+    //     if (img.width > this.maxWidth || img.height > this.maxHeight) {
+    //       this.error = `Image resolution must not exceed ${this.maxWidth}x${this.maxHeight}.`;
+    //       return;
+    //     }
+
+    //     this.imagePreview = e.target.result;
+    //     this._surveyForm.set('image', file);
+    //   };
+    // };
+
+    // reader.readAsDataURL(file);
+  }
+
+  handleImagePreview(file: File, withValidation = false) {
     const reader = new FileReader();
     reader.onload = (e: any) => {
       const img = new Image();
       img.src = e.target.result;
 
       img.onload = () => {
-        if (img.width > this.maxWidth || img.height > this.maxHeight) {
-          this.error = `Image resolution must not exceed ${this.maxWidth}x${this.maxHeight}.`;
-          return;
-        }
+        if (withValidation)
+          if (img.width > this.maxWidth || img.height > this.maxHeight) {
+            this.error = `Image resolution must not exceed ${this.maxWidth}x${this.maxHeight}.`;
+            return;
+          }
 
         this.imagePreview = e.target.result;
-        this._surveyForm.set('image', file);
+        if (withValidation) this._surveyForm.set('image', file);
       };
     };
 

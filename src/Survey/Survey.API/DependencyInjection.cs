@@ -42,7 +42,7 @@ namespace Survey.API
 
                 options.AddDefaultPolicy(policyBuilder =>
                 {
-                    string[] defaultOrigins = ["*"];
+                    string[] defaultOrigins = ["*", "http://localhost:4200"];
                     policyBuilder
                     .WithOrigins(configuration.GetSection("AllowedOrigins").Get<string[]>() ?? defaultOrigins)
                     .WithMethods("GET", "POST", "PUT", "DELETE")

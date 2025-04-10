@@ -22,7 +22,7 @@ namespace Survey.Infrastructure.Repositories
                 .Include(s => s.questions)
                 .ThenInclude(c => c.EvaluateChoices)
                 .Include(s => s.SurveyType)
-                .OrderBy(s => s.StartDate)
+                .OrderByDescending(s => s.StartDate)
                 .AsSplitQuery()
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

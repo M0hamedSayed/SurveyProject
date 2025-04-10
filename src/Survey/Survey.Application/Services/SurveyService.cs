@@ -52,8 +52,8 @@ namespace Survey.Application.Services
                     request.ClosingAddressEn,
                     request.ClosingStatementAr,
                     request.ClosingStatementEn,
-                    request.StartDate,
-                    request.EndDate,
+                    request.StartDate.ToUniversalTime(),
+                    request.EndDate.ToUniversalTime(),
                     request.Timezone,
                     request.ImageUrl,
                     request.IsRequired
@@ -203,12 +203,11 @@ namespace Survey.Application.Services
 
         public async Task<(List<SurveyType>? surveyTypes, int count)> GetAllSurveytypes(string? search,int pageNumber, int pageSize)
         {
-            Expression<Func<SurveyType, bool>> criteria = t => search != null ? t.NameEn.Contains(search) || t.NameAr.Contains(search) : true ;
-            var surveyTypes =  _unitOfWork.SurveyTypeRepository.FindAllAsync( criteria,null,(pageNumber - 1) * pageSize, pageSize);
-            var count = _unitOfWork.SurveyTypeRepository.GetTableNoTracking().CountAsync(criteria);
+            Expression<Func<SurveyType, bool>> criteria = t => (search != null && search.Trim() != "") ? (t.NameEn.Contains(search.Trim()) || t.NameAr.Contains(search.Trim())) : true ;
+            var surveyTypes = await  _unitOfWork.SurveyTypeRepository.FindAllAsync( criteria,null, pageSize, (pageNumber - 1) * pageSize);
+            var count = await _unitOfWork.SurveyTypeRepository.GetTableNoTracking().CountAsync(criteria);
 
-            await Task.WhenAll(surveyTypes, count);
-            return (surveyTypes.Result.ToList(), count.Result);
+            return (surveyTypes.ToList(), count);
         }
 
 
@@ -269,15 +268,15 @@ namespace Survey.Application.Services
             }
             if (request.StartDate.HasValue && !request.EndDate.HasValue)
             {
-                criteria = CombineExpressions(criteria, s => s.StartDate <= request.StartDate);
+                criteria = CombineExpressions(criteria, s => s.StartDate >= request.StartDate);
             }
             else if (!request.StartDate.HasValue && request.EndDate.HasValue)
             {
-                criteria = CombineExpressions(criteria, s => s.EndDate >= request.EndDate);
+                criteria = CombineExpressions(criteria, s => s.EndDate <= request.EndDate);
             }
             else if (request.StartDate.HasValue && request.EndDate.HasValue)
             {
-                criteria = CombineExpressions(criteria, s => s.StartDate <= request.StartDate && s.EndDate >= request.EndDate);
+                criteria = CombineExpressions(criteria, s => s.StartDate >= request.StartDate && s.EndDate <= request.EndDate);
             }
             if (!string.IsNullOrWhiteSpace(request.SurveyTypeId))
             {

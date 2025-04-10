@@ -26,6 +26,7 @@ namespace Survey.API.Controllers
         }
         [HttpPost("add-survey-photo")]
         [Authorize(Roles = "Admin")]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddSurveyPhoto([FromForm] AddSurveyPhotoCommand command)
         {
             var res = await _mediator.Send(command);

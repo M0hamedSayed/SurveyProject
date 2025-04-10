@@ -24,4 +24,8 @@ export class GlobalState<T> {
   public get(): Signal<T> {
     return computed(() => this.state());
   }
+
+  public reset() {
+    this.state.set({} as T);
+  }
 }

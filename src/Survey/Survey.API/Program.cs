@@ -39,6 +39,18 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Optional if you're using cookies
+    });
+});
+
+
 var app = builder.Build();
 
 //sedding data
@@ -69,7 +81,7 @@ if (app.Environment.IsDevelopment())
 
 // error handler middleware
 app.UseMiddleware<ErrorHandlerMiddleware>();
-
+app.UseCors("AllowAngularApp");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();

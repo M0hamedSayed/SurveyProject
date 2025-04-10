@@ -14,8 +14,8 @@ namespace Survey.Application.Features.surveyFeature.Queries.GetAllSurveys
         public async Task<Response<PaginatedResult<AddSurveyResult>>> Handle(GetAllSurveysQuery request, CancellationToken cancellationToken)
         {
             var result = await surveyService.GetAllSurveys(request);
-            if (result.surveys is null ||  result.surveys.Count == 0)
-                return NotFound<PaginatedResult<AddSurveyResult>>();
+            //if (result.surveys is null ||  result.surveys.Count == 0)
+                //return NotFound<PaginatedResult<AddSurveyResult>>();
             //var response = mapper.Map<AddSurveyResult>(survey!);
             var response = mapper.Map<List<AddSurveyResult>>(result.surveys!);
             var data = PaginatedResult<AddSurveyResult>.Success(response, result.count, request.PageNumber, request.PageSize);

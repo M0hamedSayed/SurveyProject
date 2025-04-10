@@ -13,8 +13,8 @@ namespace Survey.Application.Features.surveyFeature.Commands.AddSurvey
         public required string NameEn { get; set; }
         public required string NameAr { get; set; }
 
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public DateTimeOffset EndDate { get; set; }
         public string? DescriptionEn { get; set; }
         public string? DescriptionAr { get; set; }
         public string? ClosingAddressEn { get; set; }
@@ -23,6 +23,7 @@ namespace Survey.Application.Features.surveyFeature.Commands.AddSurvey
         public string? ClosingStatementAr { get; set; }
         public string? ImageUrl { get; set; }
         public bool? IsRequired { get; set; } = false;
+        public bool? IsActive { get; set; } = false;
         public string? Timezone { get; set; }
         public required List<QuestionSurveyResult> Questions { get; set; }
     }

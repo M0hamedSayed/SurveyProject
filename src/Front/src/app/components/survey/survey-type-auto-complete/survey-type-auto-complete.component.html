@@ -1,1 +1,4 @@
-<p-dropdown formControlName="surveyTypes" [options]="types" optionLabel="name" placeholder="Select a survey type" />
+<p-dropdown [options]="allData" optionLabel="nameEn" [loading]="loading()" [filter]="true" [formControl]="control()"
+    (onLazyLoad)="loadExtraData()" [ariaRowCount]="10" [virtualScroll]="true" [lazy]="hasMore"
+    [virtualScrollItemSize]="43" (onFilter)="onSearch($event)" styleClass="!w-full"
+    [placeholder]="!control().value  ? placeHolder() : control().value.nameEn"></p-dropdown>

@@ -1,5 +1,13 @@
-import { Component, OnInit, viewChild, ViewContainerRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  viewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { InitialSurveyCreationComponent } from '../../components/survey/initial-survey-creation/initial-survey-creation.component';
+import { SurveyCreateFormService } from '../../services/logic/survey-create-form.service';
 
 @Component({
   selector: 'app-create-survey',
@@ -8,14 +16,18 @@ import { InitialSurveyCreationComponent } from '../../components/survey/initial-
   templateUrl: './create-survey.component.html',
   styleUrl: './create-survey.component.css',
 })
-export class CreateSurveyComponent implements OnInit {
+export class CreateSurveyComponent implements OnInit, OnDestroy {
   viewComponentRef = viewChild('container', { read: ViewContainerRef });
   // Store output handlers here
   private outputs: Record<string, Function> = {};
-
+  private _surveyForState = inject(SurveyCreateFormService);
   ngOnInit(): void {
     this.setupOutputHandlers();
     this.loadDynamicComponent(false, { isRedirection: false });
+  }
+
+  ngOnDestroy(): void {
+    this._surveyForState.reset();
   }
 
   private setupOutputHandlers() {

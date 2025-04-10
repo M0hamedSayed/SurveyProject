@@ -1,43 +1,34 @@
 <!-- <app-one-question></app-one-question> -->
+<div class="p-6 my-4 border border-gray-300 rounded-2xl flex items-center justify-between">
+  <h2 class="font-bold text-red-600 text-2xl">Add Questions ❓</h2>
+  <p-button styleClass="!bg-white !text-purple-600" (onClick)="onPreviousPage()" [rounded]="true">↩</p-button>
+</div>
 <form [formGroup]="form" (ngSubmit)="submit()">
-    <div formArrayName="questions">
-        @for (q of questions.controls; track $index) {
-        <div class="m-4 ">
-            <app-one-question (onDelete)="handleDeleteQuestion($index)" [questionNo]="$index"
-                [formControlName]="$index"></app-one-question>
-        </div>
-        }
-    </div>
-    @if (form.errors?.['questionRequired']) {
-    <div class="text-red-600">
-        ❌ At least 1 question required.
+  <div formArrayName="questions">
+    @for (q of questions.controls; track $index) {
+    <div class="m-4 ">
+      <app-one-question (onDelete)="handleDeleteQuestion($index)" [questionNo]="$index+1"
+        [formControlName]="$index"></app-one-question>
     </div>
     }
-    <button (click)="addQuestion()" class="bg-blue-500 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">+
-        Add
-        new Question</button>
-    <div class="flex items-center gap-8 m-8 justify-between">
+  </div>
+  @if (form.errors?.['questionRequired']) {
+  <div class="text-red-600">
+    ❌ At least 1 question required.
+  </div>
+  }
+  <button (click)="addQuestion()" class="bg-blue-500 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">+
+    Add
+    new Question</button>
+  <div class="flex items-center gap-8 m-8 justify-between">
 
-        <button (click)="onPreviousPage()"
-            class="bg-blue-300 border-blue-600 text-blue-600 text-sm p-2 my-4 shadow-sm !rounded-2xl">
-            previous : Survey
-        </button>
-        <button type="submit" [disabled]="form.invalid"
-            class="bg-green-600 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">
-            submit
-        </button>
-    </div>
-
+    <button (click)="onPreviousPage()"
+      class="bg-blue-300 border-blue-600 text-blue-600 text-sm p-2 my-4 shadow-sm !rounded-2xl">
+      previous : Survey
+    </button>
+    <button type="submit" [disabled]="form.invalid"
+      class="bg-green-600 text-white text-sm p-2 my-4 shadow-sm !rounded-2xl">
+      submit
+    </button>
+  </div>
 </form>
-<!-- <form [formGroup]="form" (ngSubmit)="submit()">
-    <div formArrayName="questions">
-      <div *ngFor="let questionCtrl of questions.controls; let i = index">
-        <app-question-control [formControl]="questionCtrl"></app-question-control>
-        <button type="button" (click)="removeQuestion(i)">Remove Question</button>
-        <hr />
-      </div>
-    </div>
-  
-    <button type="button" (click)="addQuestion()">Add Question</button>
-    <button type="submit">Submit All</button>
-  </form> -->
