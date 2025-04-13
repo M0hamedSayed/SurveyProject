@@ -58,23 +58,6 @@ export class ImageUploadComponent implements OnInit {
 
     // 3. Check dimensions
     this.handleImagePreview(file, true);
-    // const reader = new FileReader();
-    // reader.onload = (e: any) => {
-    //   const img = new Image();
-    //   img.src = e.target.result;
-
-    //   img.onload = () => {
-    //     if (img.width > this.maxWidth || img.height > this.maxHeight) {
-    //       this.error = `Image resolution must not exceed ${this.maxWidth}x${this.maxHeight}.`;
-    //       return;
-    //     }
-
-    //     this.imagePreview = e.target.result;
-    //     this._surveyForm.set('image', file);
-    //   };
-    // };
-
-    // reader.readAsDataURL(file);
   }
 
   handleImagePreview(file: File, withValidation = false) {
