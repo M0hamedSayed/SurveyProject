@@ -8,12 +8,13 @@ using Shared.Events;
 
 namespace Notify.API.Events.Integration
 {
-    public class SurveyReminderConsumer (ApplicationDbContext applicationDbContext, ILogger<SurveyActivatedConsumer> logger, IClientService clientService, IHubContext<NotificationHub> hubContext) : IConsumer<SurveyReminderEvent>
+    public class SurveyReminderConsumer (ApplicationDbContext applicationDbContext, ILogger<SurveyActivatedConsumer> logger, IClientService clientService, IHubContext<NotificationHub> hubContext,IUserConnectionManager userConnectionManager) : IConsumer<SurveyReminderEvent>
     {
         private readonly IClientService _clientService = clientService;
         private readonly ILogger<SurveyActivatedConsumer> _logger = logger;
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
         private readonly IHubContext<NotificationHub> _hubContext = hubContext;
+        private readonly IUserConnectionManager _userConnectionManager = userConnectionManager;
         public async Task Consume(ConsumeContext<SurveyReminderEvent> context)
         {
             var surveyId = context.Message.SurveyId;
@@ -54,7 +55,7 @@ namespace Notify.API.Events.Integration
                             UserEmail = email!,
                             Title = title,
                             Description = description,
-                            TargetUrl = surveyUrl,
+                            TargetUrl = surveyId.ToString(),
                         });
                 }
                 if (notifications.Any())
@@ -69,7 +70,11 @@ namespace Notify.API.Events.Integration
                 // Send real-time notifications
                 var notificationTasks = notifications.Select(async notification =>
                 {
-                    await _hubContext.Clients.Client(notification.UserEmail).SendAsync("ReceiveNotification", notification);
+                    if (_userConnectionManager.TryGetConnectionId(notification.UserEmail, out var connectionId))
+                    {
+                        await _hubContext.Clients.Client(connectionId)
+                            .SendAsync("ReceiveNotification", notification);
+                    }
                 });
                 await Task.WhenAll(notificationTasks);
 

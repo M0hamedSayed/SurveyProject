@@ -24,28 +24,37 @@ builder.Services.AddServices();
 builder.Services
     .addMassTransitConfiguration<ApplicationDbContext>(builder.Configuration, Assembly.GetExecutingAssembly())
     .AddJwtAuthentication(builder.Configuration);
-builder.Services.AddSignalR(); // Add SignalR
+
+builder.Services.AddSignalR(hubOptions => {
+    hubOptions.EnableDetailedErrors = true;
+    hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(15);
+}).AddJsonProtocol(options => {
+    options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+}); // Add SignalR
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
         policy => policy
-            .AllowAnyOrigin()
+            .WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? ["https://localhost:4200", "http://localhost:4200"])
             .AllowAnyHeader()
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseCors("AllowAll");
+app.UseWebSockets();
 app.UseRouting();
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHub<NotificationHub>("/notifications");
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllers();
 

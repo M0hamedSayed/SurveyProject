@@ -45,7 +45,7 @@ namespace Notify.API.Services
             {
                 Body = bodyBuilder.ToMessageBody()
             };
-            message.From.Add(new MailboxAddress("Auth Project", _emailSettings.FromEmail));
+            message.From.Add(new MailboxAddress("Survey Project", _emailSettings.FromEmail));
             // Add recipients
             foreach (var recipient in email.To)
                 message.To.Add(MailboxAddress.Parse(recipient));
