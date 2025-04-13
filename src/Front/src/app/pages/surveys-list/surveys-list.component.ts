@@ -14,6 +14,7 @@ import { ISurvey } from '../../common/Interfaces/ISurvey';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { RouterLink } from '@angular/router';
+import { UserService } from '../../services/logic/user.service';
 
 @Component({
   selector: 'app-surveys-list',
@@ -38,6 +39,7 @@ import { RouterLink } from '@angular/router';
 })
 export class SurveysListComponent implements OnInit {
   private _apiService = inject(SurveyApiService);
+  user = inject(UserService);
   isActiveOptions = [
     { name: '✔️', value: true },
     { name: '❌', value: false },
@@ -61,6 +63,10 @@ export class SurveysListComponent implements OnInit {
   api = environment.Static_API_URL;
   ngOnInit(): void {
     this.searchForm.valueChanges.subscribe((v) => console.log(v));
+  }
+
+  isAdmin() {
+    return this.user.select('roles')().includes('Admin');
   }
 
   getControl(name: string) {
