@@ -43,7 +43,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? ["https://localhost:4200", "http://localhost:4200"])
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); // Optional if you're using cookies
@@ -62,13 +62,7 @@ using (var scope = app.Services.CreateScope())
 
     var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    //using var transaction = await context.Database.BeginTransactionAsync();
-    //await publishEndpoint.Publish(new SurveyActivatedEvent
-    //    (Guid.NewGuid(), "sasa", "saa", Guid.NewGuid())
-    //);
-    //await context.SaveChangesAsync();
 
-    //await transaction.CommitAsync();
 }
 
 
