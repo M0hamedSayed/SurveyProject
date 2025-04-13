@@ -241,9 +241,19 @@ namespace Survey.Application.Services
                     .Select(sr => sr.UserId)
                     .ToListAsync();
 
+                Guid? managerId = await _unitOfWork.SurveyRepository
+                    .GetTableNoTracking()
+                    .Where(s => s.Id == request.Id)
+                    .Select(s => s.UserId)
+                    .FirstOrDefaultAsync();
+
+                if (managerId is null || managerId == Guid.Empty) return (null, 0);
+
+                respondedUserIds.Add(managerId.Value);
+
                 // Get all users who have NOT responded
                 var emails = await _unitOfWork.UserRepository.GetTableNoTracking()
-                    .Where(u => !respondedUserIds.Contains(u.Id))
+                    .Where(u => !respondedUserIds.Contains(u.Id) && u.ManagerId == managerId)
                     .Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize)
                     .Select(u => u.Email)
                     .ToListAsync();
