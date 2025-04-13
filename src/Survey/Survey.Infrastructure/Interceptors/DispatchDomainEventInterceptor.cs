@@ -18,7 +18,6 @@ namespace Survey.Infrastructure.Interceptors
         }
         public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
-
             return await base.SavingChangesAsync(eventData, result, cancellationToken); ;
         }
 
@@ -55,8 +54,10 @@ namespace Survey.Infrastructure.Interceptors
 
             foreach (var domainEvent in domainEvents)
             {
-                if(domainEvent is SurveyActivatedEvent surveyActivatedEvent)
+                if (domainEvent is SurveyActivatedEvent surveyActivatedEvent)
                     await _publishEndpoint.Publish(surveyActivatedEvent, cancellationToken);
+                else if (domainEvent is SurveyReminderEvent reminderEvent)
+                    await _publishEndpoint.Publish(reminderEvent, cancellationToken);
             }
         }
     }
