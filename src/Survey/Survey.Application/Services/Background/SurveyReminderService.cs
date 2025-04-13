@@ -28,19 +28,22 @@ namespace Survey.Application.Services.Background
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
                 var reminderTime = DateTime.UtcNow.AddHours(4);
-                var surveysToRemind = await unitOfWork.SurveyRepository.GetTableNoTracking()
+                var surveysToRemind = await unitOfWork.SurveyRepository.GetTableAsTracking()
                     .Where(s => s.EndDate < reminderTime && s.EndDate > DateTime.UtcNow && !s.ReminderSent && s.IsActive && s.IsRequired)
                     .ToListAsync();
-
-                foreach (var survey in surveysToRemind)
+                if (surveysToRemind.Any())
                 {
-                    survey.SuveyReminder();
-                    unitOfWork.SurveyRepository.Update(survey);
+                    foreach (var survey in surveysToRemind)
+                    {
+                        survey.SuveyReminder();
+                        unitOfWork.SurveyRepository.Update(survey);
+                    }
                 }
+                
 
                 await unitOfWork.Complete();
 
-                await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
             }
         }
     }
