@@ -34,7 +34,7 @@ namespace Survey.Application.Services
             _tokenSettings.Issuer,
             _tokenSettings.Audience,
             claims,
-                expires: DateTime.UtcNow.AddHours(Convert.ToDouble(_tokenSettings.AccessTokenExpireDate)),
+                expires: DateTime.UtcNow.AddDays(Convert.ToDouble(_tokenSettings.AccessTokenExpireDate)),
                 signingCredentials: signingCredentials
             );
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
