@@ -10,6 +10,10 @@ export class SurveyApiService {
   private _http = inject(HttpClient);
   surveyApi = environment.SURVEY_API_URL;
 
+  getMe() {
+    return this._http.get(`${this.surveyApi}/User/me`);
+  }
+
   uploadSurveyPhoto(body: FormData) {
     return this._http.post(`${this.surveyApi}/Survey/add-survey-photo`, body);
   }
@@ -20,6 +24,10 @@ export class SurveyApiService {
 
   getAllSurvey(body: any) {
     return this._http.post(`${this.surveyApi}/Survey/get-all`, body);
+  }
+
+  getSurveyById(id: string) {
+    return this._http.get(`${this.surveyApi}/Survey/get-by-id/${id}`);
   }
 
   getAllSurveyTypes(body: any) {
