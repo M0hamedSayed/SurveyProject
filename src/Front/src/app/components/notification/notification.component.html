@@ -1,0 +1,17 @@
+<p-toast key="notify" class="notify" [life]="4000" [baseZIndex]="5000" position="top-center">
+    <ng-template let-message pTemplate="message">
+        <div class="flex flex-col items-start" style="flex: 1">
+            <div class="flex items-center">
+                <span class="font-semibold text-2xl block mr-2 text-blue-400"></span>
+                <span class="font-semibold text-base text-blue-400">
+                    {{ message.summary }}
+                </span>
+            </div>
+            <div class="font-medium text-sm my-3 text-blue-600">
+                {{ message.detail }}
+            </div>
+            <p-button styleClass="!bg-white !text-purple-600" [routerLink]="'/survey/'+message.data"
+                [rounded]="true">╰┈➤</p-button>
+        </div>
+    </ng-template>
+</p-toast>
