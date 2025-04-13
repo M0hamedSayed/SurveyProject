@@ -1,1 +1,116 @@
-<p>survey works!</p>
+@if(loading()){}
+@else {
+<div class="p-2 m-6 border-gray-400 border rounded-lg">
+    <div class="flex items-center gap-4 b-2 border-gray-400 border rounded-lg">
+
+        <img [alt]="survey.nameEn"
+            [src]=" survey.imageUrl ? apiUrl+survey.imageUrl : 'https://americansuppressorassociation.com/wp-content/plugins/donation-for-woocommerce/assets/images/no-image-cart-campaign.png'"
+            width="100" height="100" />
+        <p>{{survey.nameEn}}</p>
+    </div>
+    @if(survey.descriptionEn){
+    <div class="p-2 flex items-center flex-1 justify-start border-b">
+        <div class="flex flex-col items-center justify-start">
+            <p>Survey Description</p>
+            <p>{{survey.descriptionEn}}</p>
+        </div>
+    </div>
+    }
+    <div class="p-2 flex items-center flex-1 justify-around">
+        <div class="flex flex-col items-center justify-start">
+            <p>Survey Type</p>
+            <p>{{survey.surveyTypeNameEn}}</p>
+        </div>
+        <div class="flex flex-col items-center justify-start">
+            <p>Status</p>
+            <p>{{survey.isActive ? 'Active' : 'NotActive'}}</p>
+        </div>
+        <div class="flex flex-col items-center justify-start">
+            <p>Start Date</p>
+            <p>{{survey.startDate | date:'medium'}}</p>
+        </div>
+        <div class="flex flex-col items-center justify-start">
+            <p>End Date</p>
+            <p>{{survey.endDate | date:'medium'}}</p>
+        </div>
+        <div class="flex flex-col items-center justify-start">
+            <p>Is Required</p>
+            <p>{{survey.isRequired}}</p>
+        </div>
+    </div>
+
+    <div class="p-2 flex items-center flex-1 flex-col justify-around border-t">
+        @for (question of survey.questions; track $index) {
+        <div class=" border rounded-2xl p-4 m-4 w-full">
+
+            <div class="flex items-center w-full flex-1 gap-4">
+                <p>{{$index+1 + " . "}}</p>
+                <div class="flex items-center justify-center gap-4 flex-col w-[80%]">
+                    <div class="flex flex-col w-full">
+                        <p> Question En : {{question.questionEn}}</p>
+                    </div>
+                    <div class="flex flex-col w-full">
+                        <p> Question Ar : {{question.questionAr}}</p>
+                    </div>
+
+                </div>
+                <div class="flex flex-col min-w-52 ml-8">
+                    <p>Question Type : <span>
+                            @switch (question.questionType) {
+                            @case (0) {sample}
+                            @case (1) {One Choice}
+                            @case (2) {Multi Choice}
+                            @case (3) {Evaluate Choice}
+                            }
+                        </span></p>
+                </div>
+            </div>
+            @if (question.choices?.length) {
+            <div class="gap-4 m-4">
+                <p class="my-4">Choices</p>
+                <div>
+                    @for (choice of question.choices; track $index ) {
+                    <div class="b-4">
+                        <div class="flex items-center justify-center gap-4 my-4">
+                            <p>{{$index+1}}</p>
+                            <div class="flex flex-col w-full">
+                                <p>Text Ar : {{choice.textAr}}</p>
+                            </div>
+                            <div class="flex flex-col w-full">
+                                <p>Text En : {{choice.textAr}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+            @if (question.evaluateChoices?.length) {
+            <div class="gap-4 m-4">
+                <p class="my-4">Choices</p>
+                <div>
+                    @for (choice of question.evaluateChoices; track $index ) {
+                    <div>
+                        <div class="flex items-center justify-center gap-4 my-4">
+                            <p>{{$index+1}}</p>
+                            <div class="flex flex-col w-full">
+                                <p>Emoji : {{choice.emotion}}</p>
+                            </div>
+                            <div class="flex flex-col w-full">
+                                <p>Text Ar : {{choice.textAr}}</p>
+                            </div>
+                            <div class="flex flex-col w-full">
+                                <p>Text En : {{choice.textAr}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+
+        }
+    </div>
+</div>
+}
