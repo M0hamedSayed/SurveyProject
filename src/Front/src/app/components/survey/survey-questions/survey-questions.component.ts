@@ -122,6 +122,7 @@ export class SurveyQuestionsComponent implements OnInit {
         .subscribe({
           next: (result) => {
             console.log('Survey created successfully', result);
+            this._router.navigate(['survey']);
           },
           error: (err) => {
             console.error('Error occurred', err);
