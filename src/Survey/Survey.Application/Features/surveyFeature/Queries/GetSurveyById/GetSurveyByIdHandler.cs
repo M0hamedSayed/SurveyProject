@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MapsterMapper;
+﻿using MapsterMapper;
 using MediatR;
 using Survey.Application.Base;
+using Survey.Application.Extensions;
 using Survey.Application.Features.surveyFeature.Commands.AddSurvey;
 using Survey.Application.Interfaces;
 
@@ -15,10 +11,15 @@ namespace Survey.Application.Features.surveyFeature.Queries.GetSurveyById
     {
         public async Task<Response<AddSurveyResult>> Handle(GetSurveyByIdQuery request, CancellationToken cancellationToken)
         {
-            var survey = await surveyService.GetSurveyById(request.Id);
-            if (survey == null) return NotFound<AddSurveyResult>();
-            var Result = mapper.Map<AddSurveyResult>(survey);
-            return Success<AddSurveyResult>(Result);
+            var surveyDetails = await surveyService.GetSurveyByIdWithSP(request.Id);
+            
+            if (surveyDetails == null || !surveyDetails.Any()) return NotFound<AddSurveyResult>();
+
+            var Result = surveyDetails.MapToSurveyResult();
+
+            //if (survey == null) return NotFound<AddSurveyResult>();
+            //var Result = mapper.Map<AddSurveyResult>(survey);
+            return Success<AddSurveyResult>(Result!);
         }
     }
 }

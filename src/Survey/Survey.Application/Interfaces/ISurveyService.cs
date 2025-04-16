@@ -11,9 +11,12 @@ namespace Survey.Application.Interfaces
     public interface ISurveyService
     {
         public Task<Surveys> AddSurvey(AddSurveyCommand request);
+        public Task<List<SurveyDetails>> AddSurveyWithSP(AddSurveyCommand request);
         public Task<string> UploadImage(IFormFile image);
         public Task<(List<Surveys>? surveys, int count)> GetAllSurveys(GetAllSurveysQuery request);
+        public Task<(List<SurveyDetails>? surveyDetails, int count)> GetAllSurveysWithSp(GetAllSurveysQuery request);
         public Task<Surveys?> GetSurveyById(Guid surveyId, bool withTracking = false);
+        public Task<List<SurveyDetails>?> GetSurveyByIdWithSP(Guid surveyId);
         public Task<(List<SurveyType>? surveyTypes, int count)> GetAllSurveytypes(string? search, int pageNumber, int pageSize);
         public Task<Surveys?> UpdateSurvey(UpdateSurveyCommand request);
         public  Task<(List<string?>? emails, int count)> GetSurveyUsers(GetSurveyUsersQuery request);

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Reflection.Emit;
 using MassTransit;
 using MassTransit.Transports;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -39,6 +40,12 @@ namespace Survey.Infrastructure.DatabaseContext
             builder.AddInboxStateEntity();
             builder.AddOutboxMessageEntity();
             builder.AddOutboxStateEntity();
+
+            builder.Entity<SurveyDetails>(entity =>
+            {
+                entity.HasNoKey(); // Mark as keyless
+                entity.ToView(null); // Not mapped to a database view
+            });
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

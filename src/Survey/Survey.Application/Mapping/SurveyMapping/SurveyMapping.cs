@@ -8,6 +8,7 @@ namespace Survey.Application.Mapping.SurveyMapping
         public void Register(TypeAdapterConfig config)
         {
             AddSurveyMapping(config);
+            GetSurveyDetailsMapping(config);
         }
     }
 }

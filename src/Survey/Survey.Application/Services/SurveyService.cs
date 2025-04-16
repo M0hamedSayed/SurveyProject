@@ -1,9 +1,12 @@
-﻿using System.Linq.Expressions;
+﻿using System.Data;
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
+using Survey.Application.Extensions;
 using Survey.Application.Features.surveyFeature.Commands.AddSurvey;
 using Survey.Application.Features.surveyFeature.Commands.UpdateSurvey;
 using Survey.Application.Features.surveyFeature.Queries.GetAllSurveys;
@@ -72,6 +75,22 @@ namespace Survey.Application.Services
             }
         }
 
+        public async Task<List<SurveyDetails>> AddSurveyWithSP(AddSurveyCommand request)
+        {
+            var userWithRoles = await _currentUserService.GetCurrentUserWithRolesAsync();
+            bool isAdmin = userWithRoles.roles.Where(r => r.Equals("Admin")).Any();
+            if (userWithRoles.user is null) throw new UnauthorizedAccessException("Unauthorized");
+
+            Guid? userId = isAdmin ? userWithRoles.user.Id : userWithRoles.user.ManagerId;
+            if(userId == null) throw new UnauthorizedAccessException("Unauthorized");
+            // Prepare DataTables
+            var surveyDetailsTable = request.ToSurveyDetailsTable((Guid)userId);
+            var questionsTable = request.Questions.ToQuestionsTable();
+            var choicesTable = request.Questions.ToChoicesTable();
+            var evaluateChoicesTable = request.Questions.ToEvaluateChoicesTable();
+
+            return await _unitOfWork.SurveyRepository.AddSurveyWithSp(surveyDetailsTable, questionsTable, choicesTable, evaluateChoicesTable);
+        }
         public async Task<Surveys?> UpdateSurvey(UpdateSurveyCommand request)
         {
             // get required survey
@@ -188,6 +207,26 @@ namespace Survey.Application.Services
             return await _unitOfWork.SurveyRepository.GetAllSurveys(criteria, request.PageNumber, request.PageSize);
         }
 
+        public async Task<(List<SurveyDetails>? surveyDetails, int count)> GetAllSurveysWithSp(GetAllSurveysQuery request)
+        {
+            var userWithRoles = await _currentUserService.GetCurrentUserWithRolesAsync();
+            bool isAdmin = userWithRoles.roles.Where(r => r.Equals("Admin")).Any();
+            if (userWithRoles.user is null) throw new UnauthorizedAccessException("Unauthorized");
+
+            var sDetials = await _unitOfWork.SurveyRepository.GetAllSurveysWithSP( 
+                    userWithRoles.user.Id,
+                    isAdmin,
+                    request.StartDate,
+                    request.EndDate,
+                    request.SurveyTypeId,
+                    request.IsActive,
+                    request.Search,
+                    request.PageNumber,
+                    request.PageSize
+                );
+            return (sDetials, sDetials?.FirstOrDefault()?.SurveyCount ?? 0);
+        } 
+
         public async Task<Surveys?> GetSurveyById(Guid surveyId, bool withTracking = false)
         {
             var userWithRoles = await _currentUserService.GetCurrentUserWithRolesAsync();
@@ -199,6 +238,15 @@ namespace Survey.Application.Services
             criteria = CombineExpressions(criteria, userCriteria);
 
             return withTracking ? await _unitOfWork.SurveyRepository.FindWithTracking(criteria) : await _unitOfWork.SurveyRepository.FindAsync(criteria);
+        }
+         
+        public async Task<List<SurveyDetails>?> GetSurveyByIdWithSP(Guid surveyId)
+        {
+            var userWithRoles = await _currentUserService.GetCurrentUserWithRolesAsync();
+            bool isAdmin = userWithRoles.roles.Where(r => r.Equals("Admin")).Any();
+            if (userWithRoles.user is null) throw new UnauthorizedAccessException("Unauthorized");
+
+            return await _unitOfWork.SurveyRepository.FindWithSP(surveyId, userWithRoles.user.Id, isAdmin);
         }
 
         public async Task<(List<SurveyType>? surveyTypes, int count)> GetAllSurveytypes(string? search,int pageNumber, int pageSize)

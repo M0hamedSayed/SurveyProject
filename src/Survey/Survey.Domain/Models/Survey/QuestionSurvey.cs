@@ -75,6 +75,26 @@ namespace Survey.Domain.Models.Survey
 
         }
 
+        public void addMapChoice (Guid choiceId,string textEn, string textAr, string? emotion = null)
+        {
+            // validation
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(textAr);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(textEn);
+            ValidateSampleChoice();
+            if (emotion is null && QuestionType.Equals(QuestionType.Evaluate))
+                throw new DomainException("Invalid Question");
+
+            if (_choices.Count + _evaluateChoices.Count >= 10)
+                throw new DomainException("A question can have a maximum of 10 choices.");
+
+
+            if (emotion is null)
+                _choices.Add(ChoiceSurvey.Create(ChoiseSurveyId.Of(choiceId), Id, textAr, textEn));
+            else
+                _evaluateChoices.Add(EvaluateChoiceSurvey.Create(EvaluateChoiseSurveyId.Of(choiceId), Id, textAr, textEn, emotion));
+
+        }
+
         public void UpdateChoice(object choiceId, string textEn, string textAr, string? emotion = null)
         {
             ArgumentNullException.ThrowIfNull(choiceId);
