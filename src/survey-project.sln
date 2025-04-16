@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Messaging", "Shared.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notify.API", "Notify\Notify.API\Notify.API.csproj", "{28493EB9-FD4B-497E-8B49-AD2C51BA271C}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SurveySP", "SurveySP\SurveySP.sqlproj", "{DB4AC39D-B2CA-4C48-9F38-777B04FC97CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,12 @@ Global
 		{28493EB9-FD4B-497E-8B49-AD2C51BA271C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28493EB9-FD4B-497E-8B49-AD2C51BA271C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28493EB9-FD4B-497E-8B49-AD2C51BA271C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB4AC39D-B2CA-4C48-9F38-777B04FC97CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB4AC39D-B2CA-4C48-9F38-777B04FC97CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB4AC39D-B2CA-4C48-9F38-777B04FC97CE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{DB4AC39D-B2CA-4C48-9F38-777B04FC97CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB4AC39D-B2CA-4C48-9F38-777B04FC97CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB4AC39D-B2CA-4C48-9F38-777B04FC97CE}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
